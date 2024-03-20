@@ -1,3 +1,5 @@
+package Entities;
+
 public class Referee extends Thread{
     private RefereeState state;     // Referee state
     

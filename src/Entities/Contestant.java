@@ -1,3 +1,5 @@
+package Entities;
+
 public class Contestant extends Thread{
     private ContestantState state;
     private int team;
