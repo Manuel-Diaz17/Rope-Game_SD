@@ -6,15 +6,27 @@ import java.util.List;
 import Entities.Contestant;
 
 public class ContestantsBench {
-    private List<Contestant> bench = new ArrayList<>();
+    private static final ContestantsBench[] instances = new ContestantsBench[2];
+
+    private List<Contestant> bench;
+    private int selectedContestants[];
     private int team;
 
-    public ContestantsBench(int benchSize, int team, int strengthFactor) {
-        this.team = team;
-
-        for (int i = 0; i < benchSize; i++) {
-            bench.add(new Contestant(GenerateName(), team, i, (int) (Math.random()*strengthFactor)));
+    public static synchronized ContestantsBench getInstance(int id) {
+        if (instances[id-1] == null) {
+            instances[id-1] = new ContestantsBench(id);
         }
+        return instances[id-1];
+    }
+
+    private ContestantsBench(int team) {
+        this.team = team;
+        this.bench = new ArrayList<>();
+        this.selectedContestants = new int[3];
+    }
+
+    public int getTeam() {
+        return team;
     }
     
     public void addContestant(Contestant contestant){
@@ -29,23 +41,5 @@ public class ContestantsBench {
             }
         }
         return null;
-    }
-
-    public Contestant getContestant(){
-        if(!bench.isEmpty()){
-            Contestant contestant = bench.get(bench.size() - 1);
-            bench.remove(bench.size() - 1);
-            return contestant;
-        }
-        return null;
-    }
-
-    private String GenerateName() {
-        String[] FirstName = {"Paulo", "Oscar", "Bryan", "Joe", "William"};
-        String[] LastName = {"Alho", "Seixo", "Collins", "Brown", "Jones"};
-        
-        String name = FirstName[(int)(Math.random() * FirstName.length)] + " " + LastName[(int)(Math.random() * LastName.length)];
-        
-        return name;
     }
 }

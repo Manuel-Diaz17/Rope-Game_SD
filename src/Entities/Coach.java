@@ -12,6 +12,18 @@ public class Coach extends Thread{
         this.team = team;
     }
 
+    public CoachState getState() {
+        return state;
+    }
+
+    public void setState(CoachState state) {
+        this.state = state;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
     @Override
     public void run(){
         while(true) {

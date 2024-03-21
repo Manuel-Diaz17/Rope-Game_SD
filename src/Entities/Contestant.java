@@ -14,6 +14,30 @@ public class Contestant extends Thread{
         this.team = team;
         this.id = id;
         this.strength = strength;
+    }   
+
+    public ContestantState getState() {
+        return state;
+    }
+
+    public void setState(ContestantState state) {
+        this.state = state;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getStrength() {
+        return strength;
+    }
+
+    public void setStrength(int strength) {
+        this.strength = strength;
     }
 
     @Override
@@ -35,7 +59,9 @@ public class Contestant extends Thread{
     }
 
     // TODO: Implement
-    private void followCoachAdvice() {}
+    private void followCoachAdvice() {
+        state = ContestantState.STAND_IN_POSITION;
+    }
 
     // TODO: Implement
     private void getReady() {}
