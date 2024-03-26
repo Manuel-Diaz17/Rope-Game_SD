@@ -1,6 +1,17 @@
 package Entities;
 
-public class Contestant extends Thread {
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import SharingRegions.ContestantsBench;
+import SharingRegions.Playground;
+import SharingRegions.RefereeSite;
+
+public class Contestant extends Thread{
     private ContestantState state;
     private int team;
     private int id;
@@ -16,14 +27,15 @@ public class Contestant extends Thread {
         this.strength = strength;
     }   
 
-
-    //__________________________________Getters________________________________________
-    
     public ContestantState getContestantState() {
         return state;
     }
 
-    public int getContestantStrength() {
+    public int getContestantId() {
+        return id;
+    }
+
+    public int getStrength() {
         return strength;
     }
 
@@ -31,19 +43,12 @@ public class Contestant extends Thread {
         return team;
     }
 
-    public int getContestantId() {
-        return id;
-    }
-
-
-    //__________________________________Setters________________________________________
-
     public void setContestantState(ContestantState state) {
         this.state = state;
     }
 
 
-    public void setContestantStrength(int strength) {
+    public void setStrength(int strength) {
         this.strength = strength;
     }
 
@@ -68,19 +73,32 @@ public class Contestant extends Thread {
         }
     }
 
-    // TODO: Implement
     private void followCoachAdvice() {
+        ContestantsBench.getInstance().getContestant();
+        Playground.getInstance().addContestant();
+
         state = ContestantState.STAND_IN_POSITION;
     }
 
-    // TODO: Implement
-    private void getReady() {}
+    private void getReady() {
+        this.state = ContestantState.DO_YOUR_BEST;
+    }
 
-    // TODO: Implement
-    private void pullTheRope() {}
+    private void pullTheRope() {
+        try {
+            Thread.sleep((long) (Math.random()*3000));
+        } catch (InterruptedException ex) {
+            // TODO: Treat exception
+        }
+        Playground.getInstance().finishedPullingRope();
+    }
 
-    // TODO: Implement
-    private void seatDown() {}
+    private void seatDown() {
+        Playground.getInstance().getContestant();
+        ContestantsBench.getInstance().addContestant();
+
+        this.state = ContestantState.SEAT_AT_THE_BENCH;
+    }
     
     public enum ContestantState {
         SEAT_AT_THE_BENCH (1, "STB"),
