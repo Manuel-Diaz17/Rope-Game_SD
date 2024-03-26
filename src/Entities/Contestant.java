@@ -1,6 +1,6 @@
 package Entities;
 
-public class Contestant extends Thread{
+public class Contestant extends Thread {
     private ContestantState state;
     private int team;
     private int id;
@@ -9,36 +9,46 @@ public class Contestant extends Thread{
     public Contestant(String name, int team, int id, int strength) {
         super(name);
 
-        this.state = ContestantState.SEAT_AT_THE_BENCH;
+        state = ContestantState.SEAT_AT_THE_BENCH;
 
         this.team = team;
         this.id = id;
         this.strength = strength;
     }   
 
-    public ContestantState getState() {
+
+    //__________________________________Getters________________________________________
+    
+    public ContestantState getContestantState() {
         return state;
     }
 
-    public void setState(ContestantState state) {
-        this.state = state;
-    }
-
-    public int getTeam() {
-        return team;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getStrength() {
+    public int getContestantStrength() {
         return strength;
     }
 
-    public void setStrength(int strength) {
+    public int getContestantTeam() {
+        return team;
+    }
+
+    public int getContestantId() {
+        return id;
+    }
+
+
+    //__________________________________Setters________________________________________
+
+    public void setContestantState(ContestantState state) {
+        this.state = state;
+    }
+
+
+    public void setContestantStrength(int strength) {
         this.strength = strength;
     }
+
+
+
 
     @Override
     public void run() {

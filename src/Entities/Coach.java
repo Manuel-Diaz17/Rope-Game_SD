@@ -4,25 +4,32 @@ public class Coach extends Thread{
     private CoachState state;
     private int team;
 
-    public Coach(String name, int team) {
+    // TODO defenir bem a estrategia
+    private final CoachStrategy strategy;  
+
+    public Coach(String name, int team, CoachStrategy strategy) {
         super(name);
 
         this.state = CoachState.WAIT_FOR_REFEREE_COMMAND;
-
         this.team = team;
+        this.strategy = strategy;
     }
 
-    public CoachState getState() {
+    
+    //___________________________Getters___________________________
+    public CoachState getCoachState() {
         return state;
-    }
-
-    public void setState(CoachState state) {
-        this.state = state;
     }
 
     public int getTeam() {
         return team;
     }
+
+    //___________________________Setters____________________________
+    public void setState(CoachState state) {
+        this.state = state;
+    }
+
 
     @Override
     public void run(){
@@ -46,7 +53,10 @@ public class Coach extends Thread{
     // TODO: Implement
     private void informReferee() {}
 
-    // TODO: Implement
+    // TODO: Implement    @Override
+    public int compareTo(Coach coach) {
+        return this.team - coach.team;
+    }
     private void reviewNotes() {}
 
     public enum CoachState {

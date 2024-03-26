@@ -4,12 +4,11 @@ public class Referee extends Thread{
     private RefereeState state;     // Referee state
     
     public Referee(String name) {
-        super(name);
-        
-        this.state = RefereeState.START_OF_THE_MATCH;
+        super(name);  
+        state = RefereeState.START_OF_THE_MATCH;
     }
 
-    public RefereeState getState() {
+    public RefereeState getRefereeState() {
         return state;
     }
 
@@ -32,16 +31,16 @@ public class Referee extends Thread{
                     startTrial();
                     break;
                 case WAIT_FOR_TRIAL_CONCLUSION:
-                    finishedTrial = assertTrialDecision();
+                    assertTrialDecision();
                     
-                    if(finishedTrial == true) {
+                    if(isGameEnd()) {
                         declareGameWinner();
                     } else {
                         callTrial();
                     }
                     break;
                 case END_OF_A_GAME:
-                    if(true) {
+                    if(isMatchEnd()) {
                         declareMatchWinner();
                     } else {
                         announceNewGame();
@@ -72,6 +71,16 @@ public class Referee extends Thread{
 
     // TODO: Implement
     private void declareMatchWinner() {}
+
+    // TODO: Implement
+    private boolean isMatchEnd(){
+        return true;
+    }
+
+    // TODO: Implement
+    private boolean isGameEnd(){
+        return true;
+    }
 
     public enum RefereeState {
         START_OF_THE_MATCH (1, "SOM"),
