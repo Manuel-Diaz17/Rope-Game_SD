@@ -12,7 +12,7 @@ public class Referee extends Thread{
         return state;
     }
 
-    public void setState(RefereeState state) {
+    public void setRefereeState(RefereeState state) {
         this.state = state;
     }
 
