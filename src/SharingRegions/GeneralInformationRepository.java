@@ -4,6 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.lang.System.out;
 
@@ -13,23 +18,25 @@ import java.io.PrintWriter;
 import Entities.Coach;
 import Entities.Contestant;
 import Entities.Referee;
+import Entities.Referee.RefereeState;
 import SharingRegions.RefereeSite.GameScore;
 import SharingRegions.RefereeSite.TrialScore;
 
 public class GeneralInformationRepository {
     private static GeneralInformationRepository instance;
 
+    private final Lock lock;
     private PrintWriter printer;
 
     private final Set<Contestant>[] teams;
     private final Set<Coach> coaches;
-    private Referee referee;
+    private RefereeState refereeState;
 
     private final List<Integer> team1Placement;
     private final List<Integer> team2Placement;
 
-    private final List<GameScore> gameScore;
-    private final List<TrialScore> trialScore;
+    private int gameNumber;
+    private int trialNumber;
 
     private int flagPosition;
 
@@ -41,6 +48,7 @@ public class GeneralInformationRepository {
     }
 
     private GeneralInformationRepository() {
+        lock = new ReentrantLock();
 
         try {
             printer = new PrintWriter("gameResults.log");
@@ -53,8 +61,8 @@ public class GeneralInformationRepository {
         teams[1] = new TreeSet<>();
         coaches = new TreeSet<>();
 
-        gameScore = new LinkedList<>();
-        trialScore = new LinkedList<>();
+        gameNumber = 1;
+        trialNumber = 1;
 
         team1Placement = new LinkedList<>();
         team2Placement = new LinkedList<>();
@@ -62,88 +70,150 @@ public class GeneralInformationRepository {
         flagPosition = 0;
     }
 
-    public synchronized void addReferee(Referee referee) {
-        this.referee = referee;
+    public void addReferee(Referee referee) {
+        lock.lock();
+
+        refereeState = referee.getRefereeState();
+
+        lock.unlock();
     }
 
-    public synchronized void addContestant(Contestant contestant) {
+    public void addContestant(Contestant contestant) {
+        lock.lock();
+
         this.teams[contestant.getTeam()-1].add(contestant);
+
+        lock.unlock();
     }
 
-    public synchronized void addCoach(Coach coach) {
+    public void addCoach(Coach coach) {
+        lock.lock();
+
         this.coaches.add(coach);
+
+        lock.unlock();
     }
 
-    public synchronized void setGameScore(List<GameScore> gameScore) {
-        this.gameScore.clear();
-        this.gameScore.addAll(gameScore);
+    public void setGameNumber(int gameNumber) {
+        lock.lock();
+
+        this.gameNumber = gameNumber;
+
+        lock.unlock();
     }
 
-    public synchronized void setTrialScore(List<TrialScore> trialScore) {
-        this.trialScore.clear();
-        this.trialScore.addAll(trialScore);
+    public void setTrialNumber(int trialNumber) {
+        lock.lock();
+
+        this.trialNumber = trialNumber;
+
+        lock.unlock();
     }
 
-    public synchronized void setFlagPosition(int flagPosition) {
+    public void setFlagPosition(int flagPosition) {
+        lock.lock();
+
         this.flagPosition = flagPosition;
+        lock.unlock();
     }
 
-    public synchronized void setTeamPlacement() {
+    public  void setTeamPlacement() {
         Contestant contestant = (Contestant) Thread.currentThread();
+
+        lock.lock();
 
         if(contestant.getTeam() == 1)
             team1Placement.add(contestant.getContestantId());
         else if(contestant.getTeam() == 2)
             team2Placement.add(contestant.getContestantId());
+
+        lock.unlock();
     }
 
-    public synchronized void resetTeamPlacement() {
+    public void resetTeamPlacement() {
+        lock.lock();
+
         team1Placement.clear();
         team2Placement.clear();
+
+        lock.unlock();
     }
 
-    public synchronized void printGameHeader() {
-        printer.printf("Game %1d%n", gameScore.size() + 1);
+    public void printGameHeader() {
+        lock.lock();
+
+        printer.printf("Game %1d%n", gameNumber);
         printColumnHeader();
         printer.flush();
+
+        lock.unlock();
     }
 
-    public synchronized void printLineUpdate() {
+    public void printLineUpdate() {
+        Thread thread = Thread.currentThread();
+        
+        lock.lock();
+        
+        if(thread.getClass() == Contestant.class)
+            addContestant((Contestant) thread);
+        else if(thread.getClass() == Coach.class)
+            addCoach((Coach) thread);
+        else
+            addReferee((Referee) thread);
+
         printActiveEntitiesStates();
-        printTrialResult(trialScore.size() + 1, flagPosition);
+        printTrialResult(trialNumber, flagPosition);
+
+        printer.flush();
+
+        lock.unlock();
     }
 
-    public synchronized void printGameResult() {
-        switch(gameScore.get(gameScore.size()-1)) {
-            case VICTORY_TEAM_1_BY_KNOCKOUT:
-                printGameWinnerByKnockOut(gameScore.size(), 1, trialScore.size());
-                break;
-            case VICTORY_TEAM_1_BY_POINTS:
-                printGameWinnerByPoints(gameScore.size(), 1);
-                break;
-            case VICTORY_TEAM_2_BY_KNOCKOUT:
-                printGameWinnerByKnockOut(gameScore.size(), 2, trialScore.size());
-                break;
-            case VICTORY_TEAM_2_BY_POINTS:
-                printGameWinnerByPoints(gameScore.size(), 1);
-                break;
-            case DRAW:
-                printGameDraw(gameScore.size());
-                break;
+    public void printGameResult(GameScore score) {
+        lock.lock();
+
+            switch(score) {
+                case VICTORY_TEAM_1_BY_KNOCKOUT:
+                    printGameWinnerByKnockOut(gameNumber, 1, trialNumber);
+                    break;
+                case VICTORY_TEAM_1_BY_POINTS:
+                    printGameWinnerByPoints(gameNumber, 1);
+                    break;
+                case VICTORY_TEAM_2_BY_KNOCKOUT:
+                    printGameWinnerByKnockOut(gameNumber, 2, trialNumber);
+                    break;
+                case VICTORY_TEAM_2_BY_POINTS:
+                    printGameWinnerByPoints(gameNumber, 1);
+                    break;
+                case DRAW:
+                    printGameDraw(gameNumber);
+                    break;
         }
+
+        lock.unlock();
     }
 
-    public synchronized void printMatchWinner(int team, int score1, int score2) {
+    public void printMatchWinner(int team, int score1, int score2) {
+        lock.lock();
+
         printer.printf("Match was won by team %d (%d-%d).%n", team, score1, score2);
         printer.flush();
+
+        lock.unlock();
     }
 
-    public synchronized void printMatchDraw() {
+    public void printMatchDraw() {
+        lock.lock();
+
         printer.printf("Match was a draw.%n");
         printer.flush();
+
+        lock.unlock();
     }
 
-    public synchronized void printLegend() {
+    public void printLegend() {
+        lock.lock();
+
         printer.printf("Legend:%n");
         printer.printf("Ref Sta – state of the referee%n");
         printer.printf("Coa # Stat - state of the coach of team # (# - 1 .. 2)%n");
@@ -153,83 +223,113 @@ public class GeneralInformationRepository {
         printer.printf("TRIAL – NB – trial number%n");
         printer.printf("TRIAL – PS – position of the centre of the rope at the beginning of the trial%n");
         printer.flush();
+
+        lock.unlock();
     }
 
-    public synchronized void printHeader(){
+    public void printHeader(){
+        lock.lock();
+
         printer.printf("Game of the Rope - Description of the internal state%n");
         printer.printf("%n");
         printColumnHeader();       
         printActiveEntitiesStates();
         printEmptyResult();
         printer.flush();
+
+        lock.unlock();
     }
 
-    private synchronized void printColumnHeader() {
+    private void printColumnHeader() {
+        lock.lock();
+
         printer.printf("Ref Coa 1 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Coa 2 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Trial%n");
         printer.printf("Sta  Stat Sta SG Sta SG Sta SG Sta SG Sta SG  Stat Sta SG Sta SG Sta SG Sta SG Sta SG 3 2 1 . 1 2 3 NB PS%n");
         printer.flush();
+
+        lock.unlock();
     }
 
-    private synchronized void printActiveEntitiesStates() {
-        // Printing referee state
-        printer.printf("%3s", referee.getRefereeState());
+    private void printActiveEntitiesStates() {
+        lock.lock();
+
+        printer.printf("%3s", refereeState);
 
         // Printing teams state
         for(Coach coach : coaches) {
-            printer.printf("  %4s", coach.getCoachState());
-
+            printer.printf("  %4s", coach.getState());
             for(Contestant contestant : teams[coach.getTeam()-1]) {
-                printer.printf(" %3s %2d", contestant.getContestantState(), contestant.getStrength());
-            }
+                //esta linha está com os tuplos, tenho que voltar atrás para não os usar
+                printer.printf(" %3s %2d", teamsState.get(i)[j].getLeft(), teamsState.get(i)[j].getRight());            }
         }
 
-        printer.flush();
+        lock.unlock();
     }
 
-    private synchronized void printEmptyResult() {
+    private void printEmptyResult() {
+        lock.lock();
+
         printer.printf(" - - - . - - - -- --%n");    
         printer.flush();
+
+        lock.unlock();
     }
 
-    private synchronized void printTrialResult(int trialNumber, int flagPosition) {
+    private void printTrialResult(int trialNumber, int flagPosition) {
+        lock.lock();
+
         for(int i = 0; i < 3; i++) {
             if(i >= team1Placement.size())
                 printer.printf(" -");
             else 
-                printer.printf(" %1d", team1Placement.get(i));
-        }
-
+                printer.printf(" %1d", team1Placement.get(i));        }
+        
         printer.printf(" .");
 
         for(int i = 0; i < 3; i++) {
             if(i >= team2Placement.size())
                 printer.printf(" -");
             else 
-                printer.printf(" %1d", team2Placement.get(i));
-        }
+                printer.printf(" %1d", team2Placement.get(i));        }
 
         printer.printf(" %2d %2d%n", trialNumber, flagPosition);
 
-        printer.flush();
+        lock.unlock();
     }
 
-    private synchronized void printGameWinnerByKnockOut(int game, int team, int trials) {
+    private void printGameWinnerByKnockOut(int game, int team, int trials) {
+        lock.lock();
+        
         printer.printf("Game %d was won by team %d by knock out in %d trials.%n", game, team, trials);
         printer.flush();
+
+        lock.unlock();
     }
 
-    private synchronized void printGameWinnerByPoints(int game, int team) {
+    private void printGameWinnerByPoints(int game, int team) {
+        lock.lock();
+        
         printer.printf("Game %d was won by team %d by points.%n", game, team);
         printer.flush();
+
+        lock.unlock();
     }
 
-    private synchronized void printGameDraw(int game) {
+    private void printGameDraw(int game) {
+        lock.lock();
+        
         printer.printf("Game %d was a draw.%n", game);
         printer.flush();
+
+        lock.unlock();
     }    
 
-    public synchronized void close() {
+    public void close() {
+        lock.lock();
+
         printer.flush();
         printer.close();
+
+        lock.unlock();
     }
 }

@@ -16,7 +16,7 @@ import javax.swing.text.PlainDocument;
 
 public class Coach extends Thread implements Comparable<Coach>{
     private CoachState state;
-    private int team;
+    private final int team;
 
     private Comparator<Contestant> comparator = new Comparator<Contestant>() {
         @Override
@@ -48,7 +48,7 @@ public class Coach extends Thread implements Comparable<Coach>{
     @Override
     public void run(){
         ContestantsBench.getInstance().waitForNextTrial();
-        while(true) {
+        while(!RefereeSite.getInstance().isMatchEnded()) {
             switch(state) {
                 case WAIT_FOR_REFEREE_COMMAND:
                     callContestants();
@@ -94,14 +94,12 @@ public class Coach extends Thread implements Comparable<Coach>{
         bench.setSelectedContestants(pickedContestants);
 
         Playground.getInstance().checkTeamPlacement();
-        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private void informReferee() {
         RefereeSite.getInstance().informReferee();
 
         Playground.getInstance().watchTrial();
-        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private void reviewNotes() {
@@ -119,7 +117,6 @@ public class Coach extends Thread implements Comparable<Coach>{
         }
 
         ContestantsBench.getInstance().waitForNextTrial();
-        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private boolean areOperationsEnded() {
@@ -136,8 +133,8 @@ public class Coach extends Thread implements Comparable<Coach>{
         ASSEMBLE_TEAM (2, "AT"),
         WATCH_TRIAL (3, "WT");
 
-        private int id;
-        private String state;
+        private final int id;
+        private final String state;
 
         CoachState(int id, String state) {
             this.id = id;

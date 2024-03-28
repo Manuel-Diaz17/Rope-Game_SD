@@ -14,13 +14,14 @@ import Entities.Referee.RefereeState;
 public class RefereeSite {
     private static RefereeSite instance;
 
-    private Lock lock;
+    private final Lock lock;
 
-    private Condition informReferee;
+    private final Condition informReferee;
     private int informRefereeCounter;
+    private boolean isMatchEnded;
 
     private List<TrialScore> trialStatus;
-    private List<GameScore> gameStatus;
+    private final List<GameScore> gameStatus;
 
     // Create instance
     public static synchronized RefereeSite getInstance() {
@@ -38,6 +39,7 @@ public class RefereeSite {
 
         informReferee = lock.newCondition();
         informRefereeCounter = 0;
+        isMatchEnded = false;
     }
 
 
@@ -89,17 +91,6 @@ public class RefereeSite {
         }
     }
 
-
-    public int getGameRound() {
-        lock.lock();
-        try {
-            return this.gameStatus.size() + 1;
-        } finally {
-            lock.unlock();
-        }
-    }
-    
-
     public int getRemainingTrials() {
         lock.lock();
         try {
@@ -108,20 +99,6 @@ public class RefereeSite {
             lock.unlock();
         }
     }
-    
-
-    public int getTrialRound() {
-        int trialRound;
-
-        lock.lock();
-
-        trialRound = this.trialStatus.size() + 1;
-
-        lock.unlock();
-
-        return trialRound;
-    }
-
     
     public int getRemainingGames() {
         lock.lock();
@@ -151,6 +128,7 @@ public class RefereeSite {
         lock.lock();
         try {
             referee.setRefereeState(RefereeState.TEAMS_READY);
+            GeneralInformationRepository.getInstance().printLineUpdate();
 
             if(informRefereeCounter != 2)
                 informReferee.await();
@@ -163,13 +141,32 @@ public class RefereeSite {
         lock.unlock();
     }
 
+    public boolean isMatchEnded() {
+        boolean hasEnded;
+
+        lock.lock();
+
+        hasEnded = isMatchEnded;
+
+        lock.unlock();
+        return hasEnded;
+    }
+
+    public void setIsMatchEnded(boolean isMatchEnded) {
+        lock.lock();
+
+        this.isMatchEnded = isMatchEnded;
+
+        lock.unlock();
+    }
+
     public enum TrialScore {
         DRAW(0, "D"),
         VICTORY_TEAM_1(1, "VT1"),
         VICTORY_TEAM_2(2, "VT2");
 
-        private int id;
-        private String status;
+        private final int id;
+        private final String status;
 
         private TrialScore(int id, String status) {
             this.id = id;
@@ -192,8 +189,8 @@ public class RefereeSite {
         VICTORY_TEAM_2_BY_POINTS(3, "VT2PT"),
         VICTORY_TEAM_2_BY_KNOCKOUT(4, "VT2KO");
 
-        private int id;
-        private String status;
+        private final int id;
+        private final String status;
 
         private GameScore(int id, String status) {
             this.id = id;

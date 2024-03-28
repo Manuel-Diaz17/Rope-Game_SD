@@ -87,7 +87,6 @@ public class ContestantsBench {
 
         bench.add(contestant);
 
-        contestant.setContestantState(ContestantState.SEAT_AT_THE_BENCH);
 
         if(allPlayersAreSeated()) {
             allPlayersSeated.signal();
@@ -96,7 +95,7 @@ public class ContestantsBench {
         try {
             do {
                 playersSelected.await();
-            } while(!playerIsSelected());
+            } while(!playerIsSelected() && !RefereeSite.getInstance().isMatchEnded());
         } catch (InterruptedException ex) {
             lock.unlock();
             return;
@@ -178,7 +177,10 @@ public class ContestantsBench {
 
         lock.lock();
 
-        coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
+        if(coach.getCoachState() != CoachState.WAIT_FOR_REFEREE_COMMAND) {
+            coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
+            GeneralInformationRepository.getInstance().printLineUpdate();
+        }
 
         coachWaiting = true;
         waitForCoach.signal();
@@ -188,6 +190,34 @@ public class ContestantsBench {
         } catch (InterruptedException ex) {}
 
         coachWaiting = false;
+
+        lock.unlock();
+    }
+
+    public void okGoHome(){
+        lock.lock();
+
+        while(!allPlayersAreSeated()) {
+            try {
+                allPlayersSeated.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        playersSelected.signalAll();
+
+        while (!coachWaiting) {
+            try{
+                waitForCoach.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        waitForNextTrial.signal();
+
+
 
         lock.unlock();
     }
@@ -207,7 +237,6 @@ public class ContestantsBench {
     }
 
     private boolean allPlayersAreSeated() {
-        System.out.println("bench size da thread " + Thread.currentThread().getName()  + " é de: "  + Integer.toString(bench.size()));
         return bench.size() == 5;
     }
 
