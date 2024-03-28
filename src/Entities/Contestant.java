@@ -31,33 +31,30 @@ public class Contestant extends Thread{
         return state;
     }
 
+    public void setContestantState(ContestantState state) {
+        this.state = state;
+    }
+
     public int getContestantId() {
         return id;
+    }
+
+    public int getTeam() {
+        return team;
     }
 
     public int getStrength() {
         return strength;
     }
 
-    public int getContestantTeam() {
-        return team;
-    }
-
-    public void setContestantState(ContestantState state) {
-        this.state = state;
-    }
-
-
     public void setStrength(int strength) {
         this.strength = strength;
     }
 
-
-
-
     @Override
     public void run() {
-        while(true) {
+        seatDown();
+        while(!areOperationsEnded()) {
             switch(state) {
                 case SEAT_AT_THE_BENCH:
                     followCoachAdvice();
@@ -75,29 +72,31 @@ public class Contestant extends Thread{
 
     private void followCoachAdvice() {
         ContestantsBench.getInstance().getContestant();
-        Playground.getInstance().addContestant();
 
-        state = ContestantState.STAND_IN_POSITION;
+        this.setContestantState(ContestantState.STAND_IN_POSITION);
+
+        Playground.getInstance().addContestant();
     }
 
     private void getReady() {
-        this.state = ContestantState.DO_YOUR_BEST;
+        this.setContestantState(ContestantState.DO_YOUR_BEST);
     }
 
     private void pullTheRope() {
-        try {
-            Thread.sleep((long) (Math.random()*3000));
-        } catch (InterruptedException ex) {
-            // TODO: Treat exception
-        }
-        Playground.getInstance().finishedPullingRope();
+        Playground.getInstance().pullRope();
     }
 
     private void seatDown() {
         Playground.getInstance().getContestant();
-        ContestantsBench.getInstance().addContestant();
 
-        this.state = ContestantState.SEAT_AT_THE_BENCH;
+        this.setContestantState(ContestantState.SEAT_AT_THE_BENCH);
+
+        ContestantsBench.getInstance().addContestant();
+    }
+
+    private boolean areOperationsEnded() {
+        // TODO: Implement checking of end operations
+        return true;
     }
     
     public enum ContestantState {

@@ -24,15 +24,15 @@ public class ContestantsBench {
     private final Condition playersSelected;
 
     private final Set<Contestant> bench;                                                 // Structure that contains the players in the bench
-    private final Set<Contestant> selectedContestants; 
+    private final Set<Integer> selectedContestants; 
 
     public static synchronized ContestantsBench getInstance() {
         int team = -1;
 
         if(Thread.currentThread().getClass() == Contestant.class) {
-            team = ((Contestant) Thread.currentThread()).getContestantTeam();
+            team = ((Contestant) Thread.currentThread()).getTeam();
         } else if(Thread.currentThread().getClass() == Coach.class) {
-            team = ((Coach) Thread.currentThread()).getCoachTeam();
+            team = ((Coach) Thread.currentThread()).getTeam();
         }
 
         if(instances[team-1] == null) {
@@ -43,13 +43,14 @@ public class ContestantsBench {
     }
 
     private ContestantsBench(int team) {
-        this.lock = new ReentrantLock();
-        this.allPlayersSeated = this.lock.newCondition();
-        this.playersSelected = this.lock.newCondition();
-
         this.team = team;
-        this.bench = new TreeSet<>();
-        this.selectedContestants = new TreeSet<>();
+        lock = new ReentrantLock();
+
+        allPlayersSeated = lock.newCondition();
+        playersSelected = lock.newCondition();
+
+        bench = new TreeSet<>();
+        selectedContestants = new TreeSet<>();
     }
 
     public int getTeam() {
@@ -70,29 +71,30 @@ public class ContestantsBench {
         try {
             bench.add(contestant);
 
-            while(playerIsSelected()) {
+            while(!playerIsSelected()) {
                 playersSelected.await();
             }
         } catch (InterruptedException ex) {
             lock.unlock();
+            return;
         }
+
+        lock.unlock();
     }
     
-    public boolean getContestant(){
+    public void getContestant(){
         Contestant contestant = (Contestant) Thread.currentThread();
-        boolean result;
 
         lock.lock();
         
-        result = bench.remove(contestant);
+        bench.remove(contestant);
 
         lock.unlock();
 
-        return result;
     }
 
     public Set<Contestant> getBench() {
-        Set<Contestant> be = null;
+        Set<Contestant> be;
 
         lock.lock();
         try {
@@ -111,8 +113,8 @@ public class ContestantsBench {
         return be;
     }
 
-    public Set<Contestant> getSelectedContestants() {
-        Set<Contestant> selected = null;
+    public Set<Integer> getSelectedContestants() {
+        Set<Integer> selected = null;
 
         lock.lock();
 
@@ -123,12 +125,11 @@ public class ContestantsBench {
         return selected;
     }
 
-    public void setSelectedContestants(Set<Contestant> selected) {
+    public void setSelectedContestants(Set<Integer> pickedContestants) {
         lock.lock();
 
         selectedContestants.clear();
-        selectedContestants.addAll(selected);
-
+        selectedContestants.addAll(pickedContestants);
 
         playersSelected.signalAll();
 
@@ -141,7 +142,7 @@ public class ContestantsBench {
 
         lock.lock();
 
-        result = selectedContestants.contains(contestant);
+        result = selectedContestants.contains(contestant.getContestantId());
 
         lock.unlock();
 
@@ -152,4 +153,5 @@ public class ContestantsBench {
     private boolean allPlayersAreSeated() {
         return bench.size() == 5;
     }
+
 }

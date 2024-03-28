@@ -1,12 +1,17 @@
 package Entities;
 
 import SharingRegions.ContestantsBench;
+import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.text.PlainDocument;
 
 public class Coach extends Thread{
     private CoachState state;
@@ -39,14 +44,10 @@ public class Coach extends Thread{
         return team;
     }
 
-    public void setState(CoachState state) {
-        this.state = state;
-    }
-
-
     @Override
     public void run(){
-        while(true) {
+        Playground.getInstance().waitForNextTrial();
+        while(!areOperationsEnded()) {
             switch(state) {
                 case WAIT_FOR_REFEREE_COMMAND:
                     callContestants();
@@ -61,14 +62,18 @@ public class Coach extends Thread{
         }
     }
 
-    public int[] pickTeam(ContestantsBench bench, RefereeSite site) {
-        int[] pickedTeam = new int[3];
+    public Set<Integer> pickTeam(ContestantsBench bench, RefereeSite site) {
+        Set<Integer> pickedTeam = new HashSet<>();
 
-        List<Contestant> contestants = bench.getBench();
+        List<Contestant> contestants = new LinkedList<>(bench.getBench());
         contestants.sort(comparator);
 
-        for(int i = 0; i < 3; i++) {
-            pickedTeam[i] = contestants.get(i).getContestantId();
+        for(Contestant contestant : contestants) {
+            if(pickedTeam.size() == 3) {
+                break;
+            }
+
+            pickedTeam.add(contestant.getContestantId());
         }
 
         return pickedTeam;
@@ -82,26 +87,33 @@ public class Coach extends Thread{
         RefereeSite site = RefereeSite.getInstance();
 
         // Picking team
-        Set<Contestant> pickedContestants = this.pickTeam(bench, site);
+        Set<Integer> pickedContestants = this.pickTeam(bench, site);
 
         // Setting the selected team
         bench.setSelectedContestants(pickedContestants);
 
         // Updating coach state
-        this.setCoachState(CoachState.ASSEMBLE_TEAM); 
+        this.setCoachState(CoachState.ASSEMBLE_TEAM);
+
+        Playground.getInstance().checkTeamPlacement();
     }
 
-    // TODO: Implement
-    private void informReferee() {}
+    private void informReferee() {
+        RefereeSite.getInstance().informReferee();
+
+        setCoachState(CoachState.WATCH_TRIAL);
+
+        Playground.getInstance().watchTrial();
+    }
 
     private void reviewNotes() {
         ContestantsBench bench = ContestantsBench.getInstance();
-        Set<Contestant> selectedContestants = bench.getSelectedContestants();
+        Set<Integer> selectedContestants = bench.getSelectedContestants();
         Set<Contestant> allContestants = bench.getBench();
 
         for(Contestant contestant : allContestants) {
 
-            if(selectedContestants.contains(contestant)) {
+            if(selectedContestants.contains(contestant.getContestantId())) {
                 contestant.setStrength(contestant.getStrength() - 1);
             } else {
                 contestant.setStrength(contestant.getStrength() + 1);
@@ -110,6 +122,12 @@ public class Coach extends Thread{
 
         // Updating coach state
         this.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
+
+        Playground.getInstance().waitForNextTrial();
+    }
+
+    private boolean areOperationsEnded() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public enum CoachState {
@@ -125,7 +143,7 @@ public class Coach extends Thread{
             this.state = state;
         }
 
-        public int getID() {
+        public int getId() {
             return id;
         }
 
