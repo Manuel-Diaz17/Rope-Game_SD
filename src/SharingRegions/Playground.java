@@ -189,12 +189,13 @@ public class Playground {
     public void startPulling() {
         Referee referee = (Referee) Thread.currentThread();
         lock.lock();
-
-        this.startTrial.signalAll();
-
-        referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
-        GeneralInformationRepository.getInstance().printLineUpdate();
-
+    
+        try {
+            this.startTrial.signalAll();
+    
+            referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
+            GeneralInformationRepository.getInstance().printLineUpdate();
+    
             if (pullCounter != 2 * 3) {
                 try {
                     finishedPulling.await();
@@ -208,6 +209,7 @@ public class Playground {
             lock.unlock();
         }
     }
+    
 
 
     public void getContestant() {

@@ -133,45 +133,44 @@ public class RefereeSite {
         }
     }
     
-
-    public void bothTeamsReady(){
+    public void bothTeamsReady() {
         Referee referee = (Referee) Thread.currentThread();
-
+    
         lock.lock();
         try {
             referee.setRefereeState(RefereeState.TEAMS_READY);
             GeneralInformationRepository.getInstance().printLineUpdate();
-
-            if(informRefereeCounter != 2)
+    
+            if (informRefereeCounter != 2) {
                 informReferee.await();
+            }
         } catch (InterruptedException ex) {
             Logger.getLogger(RefereeSite.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            informRefereeCounter = 0;
+            lock.unlock();
         }
-
-        informRefereeCounter = 0;
-
-        lock.unlock();
     }
+    
 
     public boolean isMatchEnded() {
-        boolean hasEnded;
-
         lock.lock();
-
-        hasEnded = isMatchEnded;
-
-        lock.unlock();
-        return hasEnded;
+        try {
+            return isMatchEnded;
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     public void setIsMatchEnded(boolean isMatchEnded) {
         lock.lock();
-
-        this.isMatchEnded = isMatchEnded;
-
-        lock.unlock();
+        try {
+            this.isMatchEnded = isMatchEnded;
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     public enum TrialScore {
         DRAW(0, "D"),
         VICTORY_TEAM_1(1, "VT1"),
