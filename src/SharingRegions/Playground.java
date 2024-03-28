@@ -18,16 +18,16 @@ import Entities.Referee.RefereeState;
 public class Playground {
     private static Playground instance;
 
-    private Lock lock;
-    private Condition startTrial;
-    private Condition teamsInPosition;
-    private Condition finishedPulling;
-    private Condition resultAssert;
+    private final Lock lock;
+    private final Condition startTrial;
+    private final Condition teamsInPosition;
+    private final Condition finishedPulling;
+    private final Condition resultAssert;
     private int pullCounter;
 
     private int flagPosition;
     private int lastFlagPosition;
-    private List<Contestant>[] teams;
+    private final List<Contestant>[] teams;
 
     public static Playground getInstance() {
         if (instance == null) {
@@ -55,10 +55,13 @@ public class Playground {
         Contestant contestant = (Contestant) Thread.currentThread();
 
         lock.lock();
+
         try {
             this.teams[contestant.getTeam()-1].add(contestant);
 
             contestant.setContestantState(ContestantState.STAND_IN_POSITION);
+            GeneralInformationRepository.getInstance().setTeamPlacement();
+            GeneralInformationRepository.getInstance().printLineUpdate();
 
             if(isTeamInPlace(contestant.getTeam())) {
                 this.teamsInPosition.signalAll();
@@ -67,14 +70,20 @@ public class Playground {
 
         } catch (InterruptedException ex) {
             // TODO: Treat exception
-        } finally {
-            lock.unlock();
-        }
+        } 
+
+        lock.unlock();
     }
 
 
     public void checkTeamPlacement() {
         Coach coach = (Coach) Thread.currentThread();
+
+        lock.lock();
+
+        coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+        GeneralInformationRepository.getInstance().printLineUpdate();
+
         try {
             lock.lock();
             coach.setCoachState(CoachState.ASSEMBLE_TEAM);
@@ -111,6 +120,10 @@ public class Playground {
     public void watchTrial() {
         Coach coach = (Coach) Thread.currentThread();
         lock.lock();
+
+        coach.setCoachState(CoachState.WATCH_TRIAL);
+        GeneralInformationRepository.getInstance().printLineUpdate();
+
         try {
             coach.setCoachState(CoachState.WATCH_TRIAL);
             this.resultAssert.await();
@@ -143,7 +156,7 @@ public class Playground {
         lock.lock();
         
         try {
-            long waitTime = (long) (1000 + Math.random() * (3000 - 1000));
+            long waitTime = (long) (1 + Math.random() * (3 - 1));
 
             Thread.currentThread().sleep(waitTime);
 
@@ -176,9 +189,11 @@ public class Playground {
     public void startPulling() {
         Referee referee = (Referee) Thread.currentThread();
         lock.lock();
-        try {
-            this.startTrial.signalAll();
-            referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
+
+        this.startTrial.signalAll();
+
+        referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
+        GeneralInformationRepository.getInstance().printLineUpdate();
 
             if (pullCounter != 2 * 3) {
                 try {

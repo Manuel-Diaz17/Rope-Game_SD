@@ -1,12 +1,5 @@
 package Entities;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import SharingRegions.ContestantsBench;
 import SharingRegions.GeneralInformationRepository;
 import SharingRegions.Playground;
@@ -55,7 +48,7 @@ public class Contestant extends Thread implements Comparable<Contestant>{
     @Override
     public void run() {
         seatDown();
-        while(true) {
+        while(!RefereeSite.getInstance().isMatchEnded()) {
             switch(state) {
                 case SEAT_AT_THE_BENCH:
                     followCoachAdvice();
@@ -74,9 +67,8 @@ public class Contestant extends Thread implements Comparable<Contestant>{
     private void followCoachAdvice() {
         ContestantsBench.getInstance().getContestant();
 
-        Playground.getInstance().addContestant();
-        GeneralInformationRepository.getInstance().setTeamPlacement();
-        GeneralInformationRepository.getInstance().printLineUpdate();
+        if(!RefereeSite.getInstance().isMatchEnded())
+            Playground.getInstance().addContestant();
     }
 
     private void getReady() {
@@ -92,7 +84,6 @@ public class Contestant extends Thread implements Comparable<Contestant>{
         Playground.getInstance().getContestant();
 
         ContestantsBench.getInstance().addContestant();
-        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     @Override
@@ -105,8 +96,8 @@ public class Contestant extends Thread implements Comparable<Contestant>{
         STAND_IN_POSITION (2, "SIP"),
         DO_YOUR_BEST (3, "DYB");
 
-        private int id;
-        private String state;
+        private final int id;
+        private final String state;
 
         ContestantState(int id, String state) {
             this.id = id;

@@ -1,8 +1,5 @@
 package SharingRegions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -10,13 +7,10 @@ import java.util.TreeSet;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import Entities.Coach;
 import Entities.Coach.CoachState;
 import Entities.Contestant;
-import Entities.Contestant.ContestantState;
 
 public class ContestantsBench {
     private static final ContestantsBench[] instances = new ContestantsBench[2];
@@ -192,8 +186,6 @@ public class ContestantsBench {
     }
 
     private boolean allPlayersAreSeated() {
-        System.out.println("bench size da thread " + Thread.currentThread().getName()  + " é de: "  + Integer.toString(bench.size()));
         return bench.size() == 5;
     }
-
 }
