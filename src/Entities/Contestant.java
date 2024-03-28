@@ -8,13 +8,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import SharingRegions.ContestantsBench;
+import SharingRegions.GeneralInformationRepository;
 import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
 
-public class Contestant extends Thread{
+public class Contestant extends Thread implements Comparable<Contestant>{
     private ContestantState state;
-    private int team;
-    private int id;
+    private final int team;
+    private final int id;
     private int strength;
 
     public Contestant(String name, int team, int id, int strength) {
@@ -54,7 +55,7 @@ public class Contestant extends Thread{
     @Override
     public void run() {
         seatDown();
-        while(!areOperationsEnded()) {
+        while(true) {
             switch(state) {
                 case SEAT_AT_THE_BENCH:
                     followCoachAdvice();
@@ -73,13 +74,14 @@ public class Contestant extends Thread{
     private void followCoachAdvice() {
         ContestantsBench.getInstance().getContestant();
 
-        this.setContestantState(ContestantState.STAND_IN_POSITION);
-
         Playground.getInstance().addContestant();
+        GeneralInformationRepository.getInstance().setTeamPlacement();
+        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private void getReady() {
         this.setContestantState(ContestantState.DO_YOUR_BEST);
+        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private void pullTheRope() {
@@ -89,14 +91,13 @@ public class Contestant extends Thread{
     private void seatDown() {
         Playground.getInstance().getContestant();
 
-        this.setContestantState(ContestantState.SEAT_AT_THE_BENCH);
-
         ContestantsBench.getInstance().addContestant();
+        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
-    private boolean areOperationsEnded() {
-        // TODO: Implement checking of end operations
-        return true;
+    @Override
+    public int compareTo(Contestant contestant) {
+        return this.id - contestant.id;
     }
     
     public enum ContestantState {
@@ -117,6 +118,11 @@ public class Contestant extends Thread{
         }
 
         public String getState() {
+            return state;
+        }
+
+        @Override
+        public String toString() {
             return state;
         }
     }

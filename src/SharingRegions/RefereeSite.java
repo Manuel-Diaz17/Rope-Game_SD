@@ -8,6 +8,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import Entities.Referee;
+import Entities.Referee.RefereeState;
+
 public class RefereeSite {
     private static RefereeSite instance;
 
@@ -143,11 +146,21 @@ public class RefereeSite {
     
 
     public void bothTeamsReady(){
+        Referee referee = (Referee) Thread.currentThread();
+
+        lock.lock();
         try {
-            informReferee.await();
+            referee.setRefereeState(RefereeState.TEAMS_READY);
+
+            if(informRefereeCounter != 2)
+                informReferee.await();
         } catch (InterruptedException ex) {
             Logger.getLogger(RefereeSite.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        informRefereeCounter = 0;
+
+        lock.unlock();
     }
 
     public enum TrialScore {

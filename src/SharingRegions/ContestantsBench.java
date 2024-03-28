@@ -3,6 +3,7 @@ package SharingRegions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,7 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import Entities.Coach;
+import Entities.Coach.CoachState;
 import Entities.Contestant;
+import Entities.Contestant.ContestantState;
 
 public class ContestantsBench {
     private static final ContestantsBench[] instances = new ContestantsBench[2];
@@ -22,9 +25,13 @@ public class ContestantsBench {
     private final Lock lock;
     private final Condition allPlayersSeated;
     private final Condition playersSelected;
+    private final Condition waitForNextTrial;
+    private final Condition waitForCoach;
 
     private final Set<Contestant> bench;                                                 // Structure that contains the players in the bench
-    private final Set<Integer> selectedContestants; 
+    private final Set<Integer> selectedContestants;
+
+    private boolean coachWaiting;
 
     public static synchronized ContestantsBench getInstance() {
         int team = -1;
@@ -42,12 +49,28 @@ public class ContestantsBench {
         return instances[team-1];
     }
 
+    public static synchronized List<ContestantsBench> getInstances() {
+        List<ContestantsBench> temp = new LinkedList<>();
+
+        for(int i = 0; i < instances.length; i++) {
+            if(instances[i] == null) {
+                instances[i] = new ContestantsBench(i);
+            }
+
+            temp.add(instances[i]);
+        }
+
+        return temp;
+    }
+
     private ContestantsBench(int team) {
         this.team = team;
         lock = new ReentrantLock();
 
         allPlayersSeated = lock.newCondition();
         playersSelected = lock.newCondition();
+        waitForNextTrial = lock.newCondition();
+        waitForCoach = lock.newCondition();
 
         bench = new TreeSet<>();
         selectedContestants = new TreeSet<>();
@@ -64,16 +87,16 @@ public class ContestantsBench {
 
         bench.add(contestant);
 
+        contestant.setContestantState(ContestantState.SEAT_AT_THE_BENCH);
+
         if(allPlayersAreSeated()) {
             allPlayersSeated.signal();
         }
 
         try {
-            bench.add(contestant);
-
-            while(!playerIsSelected()) {
+            do {
                 playersSelected.await();
-            }
+            } while(!playerIsSelected());
         } catch (InterruptedException ex) {
             lock.unlock();
             return;
@@ -98,7 +121,7 @@ public class ContestantsBench {
 
         lock.lock();
         try {
-            while(allPlayersAreSeated() != true) {
+            while(!allPlayersAreSeated()) {
                 allPlayersSeated.await();
             }
         } catch (InterruptedException ex) {
@@ -136,6 +159,39 @@ public class ContestantsBench {
         lock.unlock();
     }
 
+    public void pickYourTeam(){
+        lock.lock();
+
+        try {
+            while(!coachWaiting)
+                waitForCoach.await();
+        } catch (InterruptedException ex) {
+        }
+
+        waitForNextTrial.signal();
+
+        lock.unlock();
+    }
+
+    public void waitForNextTrial() {
+        Coach coach = (Coach) Thread.currentThread();
+
+        lock.lock();
+
+        coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
+
+        coachWaiting = true;
+        waitForCoach.signal();
+
+        try {
+            waitForNextTrial.await();
+        } catch (InterruptedException ex) {}
+
+        coachWaiting = false;
+
+        lock.unlock();
+    }
+
     private boolean playerIsSelected() {
         Contestant contestant = (Contestant) Thread.currentThread();
         boolean result;
@@ -151,6 +207,7 @@ public class ContestantsBench {
     }
 
     private boolean allPlayersAreSeated() {
+        System.out.println("bench size da thread " + Thread.currentThread().getName()  + " é de: "  + Integer.toString(bench.size()));
         return bench.size() == 5;
     }
 

@@ -9,7 +9,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import Entities.Coach;
+import Entities.Coach.CoachState;
 import Entities.Contestant;
+import Entities.Contestant.ContestantState;
+import Entities.Referee;
+import Entities.Referee.RefereeState;
 
 public class Playground {
     private static Playground instance;
@@ -19,10 +23,10 @@ public class Playground {
     private Condition teamsInPosition;
     private Condition finishedPulling;
     private Condition resultAssert;
-    private Condition waitForNextTrial;
     private int pullCounter;
 
     private int flagPosition;
+    private int lastFlagPosition;
     private List<Contestant>[] teams;
 
     public static Playground getInstance() {
@@ -34,12 +38,12 @@ public class Playground {
     
     private Playground() {
         this.flagPosition = 0;
+        this.lastFlagPosition = 0;
         this.lock = new ReentrantLock();
         this.startTrial = this.lock.newCondition();
         this.teamsInPosition = this.lock.newCondition();
         this.finishedPulling = this.lock.newCondition();
         this.resultAssert = this.lock.newCondition();
-        this.waitForNextTrial = this.lock.newCondition();
         this.pullCounter = 0;
 
         this.teams = new List[2];
@@ -54,7 +58,9 @@ public class Playground {
         try {
             this.teams[contestant.getTeam()-1].add(contestant);
 
-            if(isTeamInPlace(contestant.getTeam()-1)) {
+            contestant.setContestantState(ContestantState.STAND_IN_POSITION);
+
+            if(isTeamInPlace(contestant.getTeam())) {
                 this.teamsInPosition.signalAll();
             }
             startTrial.await();
@@ -68,10 +74,13 @@ public class Playground {
 
     public void checkTeamPlacement() {
         Coach coach = (Coach) Thread.currentThread();
+
         lock.lock();
 
+        coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+
         try {
-            while(!isTeamInPlace(coach.getTeam()-1)) {
+            while(!isTeamInPlace(coach.getTeam())) {
                 this.teamsInPosition.await();
             }
         } catch (InterruptedException ex) {
@@ -82,7 +91,11 @@ public class Playground {
     }
 
     public void watchTrial() {
+        Coach coach = (Coach) Thread.currentThread();
+
         lock.lock();
+
+        coach.setCoachState(CoachState.WATCH_TRIAL);
 
         try {
             this.resultAssert.await();
@@ -99,7 +112,7 @@ public class Playground {
         try {
             long waitTime = (long) (1000 + Math.random() * (3000 - 1000));
 
-            Thread.currentThread().wait(waitTime);
+            Thread.currentThread().sleep(waitTime);
 
             this.pullCounter++;
 
@@ -119,15 +132,30 @@ public class Playground {
     public void resultAsserted() {
         lock.lock();
 
-        this.pullCounter = 0;
-
         this.resultAssert.signalAll();
 
         lock.unlock(); 
     }
 
     public void startPulling() {
+        Referee referee = (Referee) Thread.currentThread();
+
+        lock.lock();
+
         this.startTrial.signalAll();
+
+        referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
+
+        if(pullCounter != 2 * 3)
+            try {
+                finishedPulling.await();
+            } catch (InterruptedException ex) {
+                lock.unlock();
+                return;
+            }
+
+
+        lock.unlock();
     }
 
     public void getContestant(){
@@ -153,19 +181,20 @@ public class Playground {
     }
 
     public void setFlagPosition(int flagPosition) {
+        this.lastFlagPosition = flagPosition;
         this.flagPosition = flagPosition;
     }
 
-    private boolean isTeamInPlace(int teamId) {
-        return this.teams[teamId].size() == 3;    
-    }
+    public int getLastFlagPosition() {
+        int result;
 
-    public void allHavePulled() {
-        try {
-            this.finishedPulling.await();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        lock.lock();
+
+        result = this.lastFlagPosition;
+
+        lock.unlock();
+
+        return result;
     }
 
     public List<Contestant>[] getTeams() {
@@ -181,6 +210,17 @@ public class Playground {
         return teams;
     }
 
+    
+    public void allHavePulled() {
+        lock.lock();
+        try {
+            this.finishedPulling.await();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        lock.unlock();
+    }
+
     private void flagPositionUpdate() {
         int team1 = 0;
         int team2 = 0;
@@ -193,6 +233,8 @@ public class Playground {
             team2 += contestant.getStrength();
         }
 
+        lastFlagPosition = flagPosition;
+
         if(team1 > team2) {
             this.flagPosition--;
         } else if(team1 < team2) {
@@ -200,17 +242,7 @@ public class Playground {
         }
     }
 
-    public void waitForNextTrial() {
-        lock.lock();
-
-        try {
-            waitForNextTrial.await();
-        } catch (InterruptedException ex) {}
-
-        lock.unlock();
-    }
-
-    public void coachPickYourTeam(){
-        waitForNextTrial.signalAll();
+    private boolean isTeamInPlace(int teamId) {
+        return this.teams[teamId-1].size() == 3;    
     }
 }

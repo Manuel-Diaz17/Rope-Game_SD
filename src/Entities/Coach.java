@@ -1,6 +1,7 @@
 package Entities;
 
 import SharingRegions.ContestantsBench;
+import SharingRegions.GeneralInformationRepository;
 import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
 
@@ -13,7 +14,7 @@ import java.util.Set;
 
 import javax.swing.text.PlainDocument;
 
-public class Coach extends Thread{
+public class Coach extends Thread implements Comparable<Coach>{
     private CoachState state;
     private int team;
 
@@ -46,8 +47,8 @@ public class Coach extends Thread{
 
     @Override
     public void run(){
-        Playground.getInstance().waitForNextTrial();
-        while(!areOperationsEnded()) {
+        ContestantsBench.getInstance().waitForNextTrial();
+        while(true) {
             switch(state) {
                 case WAIT_FOR_REFEREE_COMMAND:
                     callContestants();
@@ -92,18 +93,15 @@ public class Coach extends Thread{
         // Setting the selected team
         bench.setSelectedContestants(pickedContestants);
 
-        // Updating coach state
-        this.setCoachState(CoachState.ASSEMBLE_TEAM);
-
         Playground.getInstance().checkTeamPlacement();
+        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private void informReferee() {
         RefereeSite.getInstance().informReferee();
 
-        setCoachState(CoachState.WATCH_TRIAL);
-
         Playground.getInstance().watchTrial();
+        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private void reviewNotes() {
@@ -120,14 +118,17 @@ public class Coach extends Thread{
             }
         }
 
-        // Updating coach state
-        this.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
-
-        Playground.getInstance().waitForNextTrial();
+        ContestantsBench.getInstance().waitForNextTrial();
+        GeneralInformationRepository.getInstance().printLineUpdate();
     }
 
     private boolean areOperationsEnded() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
+    }
+
+    @Override
+    public int compareTo(Coach coach) {
+        return this.team - coach.team;
     }
 
     public enum CoachState {
@@ -148,6 +149,11 @@ public class Coach extends Thread{
         }
 
         public String getState() {
+            return state;
+        }
+
+        @Override
+        public String toString() {
             return state;
         }
     }
