@@ -111,16 +111,14 @@ public class RefereeSite {
     
 
     public int getTrialRound() {
-        int trialRound;
-
         lock.lock();
-
-        trialRound = this.trialStatus.size() + 1;
-
-        lock.unlock();
-
-        return trialRound;
+        try {
+            return this.trialStatus.size() + 1;
+        } finally {
+            lock.unlock();
+        }
     }
+    
 
     
     public int getRemainingGames() {

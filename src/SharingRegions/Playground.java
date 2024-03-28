@@ -72,39 +72,72 @@ public class Playground {
         }
     }
 
+
     public void checkTeamPlacement() {
         Coach coach = (Coach) Thread.currentThread();
-
-        lock.lock();
-
-        coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-
         try {
-            while(!isTeamInPlace(coach.getTeam())) {
+            lock.lock();
+            coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+            while (!isTeamInPlace(coach.getTeam())) {
                 this.teamsInPosition.await();
             }
         } catch (InterruptedException ex) {
             lock.unlock();
             return;
+        } finally {
+            lock.unlock();
         }
-        lock.unlock();
     }
+
+    // public void checkTeamPlacement() {
+    //     Coach coach = (Coach) Thread.currentThread();
+
+    //     lock.lock();
+
+    //     coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+
+    //     try {
+    //         while(!isTeamInPlace(coach.getTeam())) {
+    //             this.teamsInPosition.await();
+    //         }
+    //     } catch (InterruptedException ex) {
+    //         lock.unlock();
+    //         return;
+    //     }
+    //     lock.unlock();
+    // }
+
 
     public void watchTrial() {
         Coach coach = (Coach) Thread.currentThread();
-
         lock.lock();
-
-        coach.setCoachState(CoachState.WATCH_TRIAL);
-
         try {
+            coach.setCoachState(CoachState.WATCH_TRIAL);
             this.resultAssert.await();
         } catch (InterruptedException ex) {
             lock.unlock();
             return;
+        } finally {
+            lock.unlock();
         }
-        lock.unlock();
     }
+
+    // public void watchTrial() {
+    //     Coach coach = (Coach) Thread.currentThread();
+
+    //     lock.lock();
+
+    //     coach.setCoachState(CoachState.WATCH_TRIAL);
+
+    //     try {
+    //         this.resultAssert.await();
+    //     } catch (InterruptedException ex) {
+    //         lock.unlock();
+    //         return;
+    //     }
+    //     lock.unlock();
+    // }
+
 
     public void pullRope() {
         lock.lock();
@@ -129,86 +162,105 @@ public class Playground {
         lock.unlock(); 
     }
 
+
     public void resultAsserted() {
         lock.lock();
-
-        this.resultAssert.signalAll();
-
-        lock.unlock(); 
+        try {
+            this.resultAssert.signalAll();
+        } finally {
+            lock.unlock();
+        }
     }
 
+    
     public void startPulling() {
         Referee referee = (Referee) Thread.currentThread();
-
         lock.lock();
+        try {
+            this.startTrial.signalAll();
+            referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
 
-        this.startTrial.signalAll();
-
-        referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
-
-        if(pullCounter != 2 * 3)
-            try {
-                finishedPulling.await();
-            } catch (InterruptedException ex) {
-                lock.unlock();
-                return;
+            if (pullCounter != 2 * 3) {
+                try {
+                    finishedPulling.await();
+                } catch (InterruptedException ex) {
+                    // Tratar a interrupção conforme necessário
+                    System.out.println("Interrupted while waiting for trial conclusion.");
+                    return;
+                }
             }
-
-
-        lock.unlock();
+        } finally {
+            lock.unlock();
+        }
     }
 
-    public void getContestant(){
+
+    public void getContestant() {
         Contestant contestant = (Contestant) Thread.currentThread();
-
+    
         lock.lock();
+        try {
+            int teamIndex = contestant.getTeam() - 1;
+            if (teamIndex >= 0 && teamIndex < teams.length) {
+                teams[teamIndex].remove(contestant);
+            } else {System.out.println("Contestant team index out of bounds.");// Lidar com o índice de equipe inválido
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
 
-        teams[contestant.getTeam()-1].remove(contestant);
 
-        lock.unlock();
+    // public void getContestant(){
+    //     Contestant contestant = (Contestant) Thread.currentThread();
+        
+    //     lock.lock();
+        
+    //     teams[contestant.getContestantTeam()-1].remove(contestant);
+        
+    //     lock.unlock();
+    // }
+    
+    
+    public int getFlagPosition() {
+        lock.lock();
+        try {
+            return this.flagPosition;
+        } finally {
+            lock.unlock();
+        }
     }
     
-    public int getFlagPosition(){
-        int result;
-
-        lock.lock();
-
-        result = this.flagPosition;
-
-        lock.unlock();
-
-        return result;
-    }
 
     public void setFlagPosition(int flagPosition) {
         this.lastFlagPosition = flagPosition;
         this.flagPosition = flagPosition;
     }
 
+
     public int getLastFlagPosition() {
-        int result;
-
         lock.lock();
-
-        result = this.lastFlagPosition;
-
-        lock.unlock();
-
-        return result;
+        try {
+            return this.lastFlagPosition;
+        } finally {
+            lock.unlock();
+        }
     }
+    
 
     public List<Contestant>[] getTeams() {
         List<Contestant>[] teams = new List[2];
 
         lock.lock();
-
-        teams[0] = new ArrayList<>(this.teams[0]);
-        teams[1] = new ArrayList<>(this.teams[1]);
-
-        lock.unlock();
-
+        try {
+            teams[0] = new ArrayList<>(this.teams[0]);
+            teams[1] = new ArrayList<>(this.teams[1]);
+        } finally {
+            lock.unlock();
+        }
         return teams;
     }
+    
 
     
     public void allHavePulled() {
