@@ -1,8 +1,5 @@
 package SharingRegions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -10,13 +7,10 @@ import java.util.TreeSet;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import Entities.Coach;
 import Entities.Coach.CoachState;
 import Entities.Contestant;
-import Entities.Contestant.ContestantState;
 
 public class ContestantsBench {
     private static final ContestantsBench[] instances = new ContestantsBench[2];
@@ -177,10 +171,8 @@ public class ContestantsBench {
 
         lock.lock();
 
-        if(coach.getCoachState() != CoachState.WAIT_FOR_REFEREE_COMMAND) {
-            coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
-            GeneralInformationRepository.getInstance().printLineUpdate();
-        }
+        coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
+        GeneralInformationRepository.getInstance().printLineUpdate();
 
         coachWaiting = true;
         waitForCoach.signal();
@@ -190,34 +182,6 @@ public class ContestantsBench {
         } catch (InterruptedException ex) {}
 
         coachWaiting = false;
-
-        lock.unlock();
-    }
-
-    public void okGoHome(){
-        lock.lock();
-
-        while(!allPlayersAreSeated()) {
-            try {
-                allPlayersSeated.await();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        playersSelected.signalAll();
-
-        while (!coachWaiting) {
-            try{
-                waitForCoach.await();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        waitForNextTrial.signal();
-
-
 
         lock.unlock();
     }
@@ -233,11 +197,9 @@ public class ContestantsBench {
         lock.unlock();
 
         return result;
-
     }
 
     private boolean allPlayersAreSeated() {
         return bench.size() == 5;
     }
-
 }

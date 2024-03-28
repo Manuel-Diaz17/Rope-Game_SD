@@ -1,6 +1,5 @@
 package Entities;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static Entities.Referee.RefereeState.END_OF_THE_MATCH;
@@ -172,10 +171,6 @@ public class Referee extends Thread{
 
         refereesite.setIsMatchEnded(true);
 
-        List<ContestantsBench> benchs = ContestantsBench.getInstances();
-    
-        for(ContestantsBench bench : benchs)
-            bench.okGoHome();
     }
 
     private boolean isGameEnd() {

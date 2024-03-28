@@ -115,7 +115,7 @@ public class Playground {
         lock.lock();
         
         try {
-            long waitTime = (long) (1000 + Math.random() * (3000 - 1000));
+            long waitTime = (long) (1 + Math.random() * (3 - 1));
 
             Thread.currentThread().sleep(waitTime);
 
