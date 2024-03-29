@@ -25,12 +25,11 @@ public class Coach extends Thread implements Comparable<Coach>{
         }
     }; 
 
-    public Coach(String name, int team, CoachStrategy strategy) {
+    public Coach(String name, int team) {
         super(name);
 
         this.state = CoachState.WAIT_FOR_REFEREE_COMMAND;
         this.team = team;
-        this.strategy = strategy;
     }
 
     public CoachState getCoachState() {

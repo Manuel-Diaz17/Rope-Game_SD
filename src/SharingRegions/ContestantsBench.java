@@ -10,19 +10,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import Entities.Coach;
 import Entities.Coach.CoachState;
+import Entities.Contestant.ContestantState;
 import Entities.Contestant;
 
 public class ContestantsBench {
     private static final ContestantsBench[] instances = new ContestantsBench[2];
 
-    private final int team;                                                               // Team identifier
+    private final int team;
     private final Lock lock;
     private final Condition allPlayersSeated;
     private final Condition playersSelected;
     private final Condition waitForNextTrial;
     private final Condition waitForCoach;
 
-    private final Set<Contestant> bench;                                                 // Structure that contains the players in the bench
+    private final Set<Contestant> bench;
     private final Set<Integer> selectedContestants;
 
     private boolean coachWaiting;

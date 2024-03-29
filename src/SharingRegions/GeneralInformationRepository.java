@@ -4,13 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.lang.System.out;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -20,7 +15,6 @@ import Entities.Contestant;
 import Entities.Referee;
 import Entities.Referee.RefereeState;
 import SharingRegions.RefereeSite.GameScore;
-import SharingRegions.RefereeSite.TrialScore;
 
 public class GeneralInformationRepository {
     private static GeneralInformationRepository instance;
@@ -258,9 +252,11 @@ public class GeneralInformationRepository {
         // Printing teams state
         for(Coach coach : coaches) {
             printer.printf("  %4s", coach.getState());
+
             for(Contestant contestant : teams[coach.getTeam()-1]) {
                 //esta linha está com os tuplos, tenho que voltar atrás para não os usar
-                printer.printf(" %3s %2d", teamsState.get(i)[j].getLeft(), teamsState.get(i)[j].getRight());            }
+                printer.printf(" %3s %2d", contestant.getContestantState(), contestant.getStrength());
+            }
         }
 
         lock.unlock();

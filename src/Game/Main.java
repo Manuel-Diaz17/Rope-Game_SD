@@ -1,16 +1,12 @@
 package Game;
 
-import java.security.SecureRandom;
-import java.util.Scanner;
-
 import Entities.Coach;
 import Entities.Contestant;
 import Entities.Referee;
-import SharingRegions.ContestantsBench;
 import SharingRegions.GeneralInformationRepository;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         Contestant team1contestant1 = new Contestant("T1 player1",1,1, 10 + (int)(Math.random() * 20 - 10));
         Contestant team1contestant2 = new Contestant("T1 Player2",1,2, 10 + (int)(Math.random() * 20 - 10));
@@ -30,11 +26,8 @@ public class Main {
 
         Referee referee = new Referee("Referee");
 
-        Coach coach1 = new Coach("T1 Coach", 1, new MostStrengthStrategy());
-        Coach coach2 = new Coach("T2 Coach", 2, new MostStrengthStrategy());
-
-        Scanner sc = new Scanner(System.in);
-        sc.next();
+        Coach coach1 = new Coach("T1 Coach", 1);
+        Coach coach2 = new Coach("T2 Coach", 2);
 
         GeneralInformationRepository informationRepository = GeneralInformationRepository.getInstance();
 
@@ -73,6 +66,7 @@ public class Main {
         referee.start();
 
         referee.join();
+
         coach1.join();
         coach2.join();
 
