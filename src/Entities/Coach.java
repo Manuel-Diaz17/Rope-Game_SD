@@ -1,18 +1,14 @@
 package Entities;
 
 import SharingRegions.ContestantsBench;
-import SharingRegions.GeneralInformationRepository;
 import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import javax.swing.text.PlainDocument;
 
 public class Coach extends Thread implements Comparable<Coach>{
     private CoachState state;
@@ -84,10 +80,10 @@ public class Coach extends Thread implements Comparable<Coach>{
         ContestantsBench bench = ContestantsBench.getInstance();
 
         // Referee site
-        RefereeSite site = RefereeSite.getInstance();
+        RefereeSite refereeSite = RefereeSite.getInstance();
 
         // Picking team
-        Set<Integer> pickedContestants = this.pickTeam(bench, site);
+        Set<Integer> pickedContestants = this.pickTeam(bench, refereeSite);
 
         // Setting the selected team
         bench.setSelectedContestants(pickedContestants);

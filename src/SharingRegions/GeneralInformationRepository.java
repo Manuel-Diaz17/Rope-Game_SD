@@ -251,7 +251,7 @@ public class GeneralInformationRepository {
 
         // Printing teams state
         for(Coach coach : coaches) {
-            printer.printf("  %4s", coach.getState());
+            printer.printf("  %4s", coach.getCoachState());
 
             for(Contestant contestant : teams[coach.getTeam()-1]) {
                 //esta linha está com os tuplos, tenho que voltar atrás para não os usar

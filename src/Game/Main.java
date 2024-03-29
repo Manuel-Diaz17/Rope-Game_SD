@@ -3,11 +3,19 @@ package Game;
 import Entities.Coach;
 import Entities.Contestant;
 import Entities.Referee;
+import SharingRegions.ContestantsBench;
 import SharingRegions.GeneralInformationRepository;
+import SharingRegions.Playground;
+import SharingRegions.RefereeSite;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
+        ContestantsBench.getInstances();
+        RefereeSite.getInstance();
+        Playground.getInstance();
+        GeneralInformationRepository informationRepository = GeneralInformationRepository.getInstance();
 
+        Contestant[][] contestants = new Contestant[2][5];
         Contestant team1contestant1 = new Contestant("T1 player1",1,1, 10 + (int)(Math.random() * 20 - 10));
         Contestant team1contestant2 = new Contestant("T1 Player2",1,2, 10 + (int)(Math.random() * 20 - 10));
         Contestant team1contestant3 = new Contestant("T1 Player3",1,3, 10 + (int)(Math.random() * 20 - 10));
@@ -26,10 +34,9 @@ public class Main {
 
         Referee referee = new Referee("Referee");
 
+        Coach[] coaches = new Coach[2];
         Coach coach1 = new Coach("T1 Coach", 1);
         Coach coach2 = new Coach("T2 Coach", 2);
-
-        GeneralInformationRepository informationRepository = GeneralInformationRepository.getInstance();
 
         informationRepository.addContestant(team1contestant1);
         informationRepository.addContestant(team1contestant2);
@@ -49,38 +56,39 @@ public class Main {
 
         informationRepository.printHeader();
 
+        coach1.start();
         team1contestant1.start();
         team1contestant2.start();
         team1contestant3.start();
         team1contestant4.start();
         team1contestant5.start();
 
+        coach2.start();
         team2contestant1.start();
         team2contestant2.start();
         team2contestant3.start();
         team2contestant4.start();
         team2contestant5.start();
 
-        coach1.start();
-        coach2.start();
+        System.out.println("XXXXXXXXXXXXXXXX");
+
         referee.start();
+
+        System.out.println("XXXXXXXXXXXXXXXX");
 
         referee.join();
 
-        coach1.join();
-        coach2.join();
+        System.out.println("XXXXXXXXXXXXXXXX");
 
-        team1contestant1.join();
-        team1contestant2.join();
-        team1contestant3.join();
-        team1contestant4.join();
-        team1contestant5.join();
+        for (int i = 0; i < coaches.length; i++) {
+            while(coaches[i].isAlive())
+                coaches[i].interrupt();
 
-        team2contestant1.join();
-        team2contestant2.join();
-        team2contestant3.join();
-        team2contestant4.join();
-        team2contestant5.join();
+            for (int j = 0; j < contestants[i].length; j++) {
+                while(contestants[i][j].isAlive())
+                    contestants[i][j].interrupt();
+            }
+        }
 
         System.out.println("\nO jogo terminou corretamente.");
     }

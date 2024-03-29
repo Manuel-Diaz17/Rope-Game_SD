@@ -220,7 +220,7 @@ public class Playground {
             int teamIndex = contestant.getTeam() - 1;
             if (teamIndex >= 0 && teamIndex < teams.length) {
                 teams[teamIndex].remove(contestant);
-            } else {System.out.println("Contestant team index out of bounds.");// Lidar com o índice de equipe inválido
+            } else {System.out.println("Contestant team index out of bounds.");
             }
         } finally {
             lock.unlock();
