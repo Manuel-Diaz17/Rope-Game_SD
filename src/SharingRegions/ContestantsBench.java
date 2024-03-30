@@ -106,12 +106,12 @@ public class ContestantsBench {
     
     public void getContestant() {
         Contestant contestant = (Contestant) Thread.currentThread();
+        
         lock.lock();
-        try {
-            bench.remove(contestant);
-        } finally {
-            lock.unlock();
-        }
+        
+        bench.remove(contestant);
+        
+        lock.unlock();
     }
 
     public Set<Contestant> getBench() {
@@ -151,13 +151,13 @@ public class ContestantsBench {
 
     public void setSelectedContestants(Set<Integer> pickedContestants) {
         lock.lock();
-        try{
+        
         selectedContestants.clear();
         selectedContestants.addAll(pickedContestants);
+            
         playersSelected.signalAll();
-        }finally{
-            lock.unlock();
-        }
+        
+        lock.unlock();
     }
 
 
@@ -198,12 +198,15 @@ public class ContestantsBench {
 
     private boolean playerIsSelected() {
         Contestant contestant = (Contestant) Thread.currentThread();
+        boolean result;
+        
         lock.lock();
-        try {
-            return selectedContestants.contains(contestant.getContestantId());
-        } finally {
-            lock.unlock();
-        }
+        
+        result = selectedContestants.contains(contestant.getContestantId());
+        
+        lock.unlock();
+        
+        return result;
     }
 
     private boolean allPlayersAreSeated() {

@@ -44,61 +44,66 @@ public class RefereeSite {
 
 
     public List<GameScore> getGamePoints() {
+        List<GameScore> gamePoints;
+        
         lock.lock();
-        try {
-            return new LinkedList<>(this.gameStatus);
-        } finally {
-            lock.unlock();
-        }
+        
+        gamePoints = new LinkedList<>(this.gameStatus);
+        
+        lock.unlock();
+        
+        return gamePoints;
     }
     
     public void addGamePoint(GameScore score) {
         lock.lock();
-        try{
-            this.gameStatus.add(score);
-            this.trialStatus.clear();
-        }finally{
-            lock.unlock();
-        }
+        
+        this.gameStatus.add(score);
+        this.trialStatus.clear();
+        
+        lock.unlock();
     }
 
 
     public List<TrialScore> getTrialPoints() {
+        List<TrialScore> trialPoints;
+        
         lock.lock();
-        try {
-            return new LinkedList<>(this.trialStatus);
-        } finally {
-            lock.unlock();
-        }
+        
+        trialPoints = new LinkedList<>(this.trialStatus);
+        
+        lock.unlock();
+        
+        return trialPoints;
     }
     
 
     public void resetTrialPoints(){
         lock.lock();
-        try {
-            this.trialStatus.clear();
-        } finally {
-            lock.unlock();
-        }
+        
+        this.trialStatus = new LinkedList<>();
+        
+        lock.unlock();
     }
 
     public void addTrialPoint(TrialScore score) {
         lock.lock();
-        try {
-            //System.out.println("buenas: " + score);
-            this.trialStatus.add(score);
-        } finally {
-            lock.unlock();
-        }
+        
+        this.trialStatus.add(score);
+        
+        lock.unlock();
     }
 
     public int getRemainingTrials() {
+        int remaining;
+        
         lock.lock();
-        try {
-            return 3 - this.gameStatus.size();
-        } finally {
-            lock.unlock();
-        }
+        
+        remaining = 6 - this.trialStatus.size();
+        
+        lock.unlock();
+        
+        return remaining;
     }
     
 
@@ -114,24 +119,27 @@ public class RefereeSite {
 
     
     public int getRemainingGames() {
+        int remaining;
+        
         lock.lock();
-        try {
-            return 3 - this.gameStatus.size();
-        } finally {
-            lock.unlock();
-        }
+        
+        remaining = 3 - this.gameStatus.size();
+        
+        lock.unlock();
+        
+        return remaining;
     }
 
 
     public void informReferee() {
         lock.lock();
-        try {
-            informRefereeCounter++;
-            if (informRefereeCounter == 2)
-                informReferee.signal();
-        } finally {
-            lock.unlock();
-        }
+        
+        informRefereeCounter++;
+        
+        if(informRefereeCounter == 2)
+            informReferee.signal();
+        
+        lock.unlock();
     }
     
     public void bothTeamsReady() {

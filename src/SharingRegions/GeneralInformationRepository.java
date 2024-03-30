@@ -66,95 +66,78 @@ public class GeneralInformationRepository {
 
     public void addReferee(Referee referee) {
         lock.lock();
-        try {
-            refereeState = referee.getRefereeState();
-        } finally {
-            lock.unlock();
-        }
+        refereeState = referee.getRefereeState();
+        lock.unlock();
     }
     
     public void addContestant(Contestant contestant) {
         lock.lock();
-        try {
-            this.teams[contestant.getTeam() - 1].add(contestant);
-        } finally {
-            lock.unlock();
-        }
+        this.teams[contestant.getTeam() - 1].add(contestant);
+        lock.unlock();
     }
     
     public void addCoach(Coach coach) {
         lock.lock();
-        try {
-            this.coaches.add(coach);
-        } finally {
-            lock.unlock();
-        }
+        this.coaches.add(coach);
+        lock.unlock();
+
     }
     
     public void setGameNumber(int gameNumber) {
         lock.lock();
-        try {
-            this.gameNumber = gameNumber;
-        } finally {
-            lock.unlock();
-        }
+
+        this.gameNumber = gameNumber;
+        lock.unlock();
+        
     }
     
     public void setTrialNumber(int trialNumber) {
         lock.lock();
-        try {
-            this.trialNumber = trialNumber;
-        } finally {
-            lock.unlock();
-        }
+
+        this.trialNumber = trialNumber;
+
+        lock.unlock();
     }
     
 
     public void setFlagPosition(int flagPosition) {
         lock.lock();
-        try {
-            this.flagPosition = flagPosition;
-        } finally {
-            lock.unlock();
-        }
-        
+        this.flagPosition = flagPosition;
+        lock.unlock();
     }
 
     public  void setTeamPlacement() {
         Contestant contestant = (Contestant) Thread.currentThread();
 
         lock.lock();
-        try {
-            if (contestant.getTeam() == 1)
-                team1Placement.add(contestant.getContestantId());
-            else if (contestant.getTeam() == 2)
-                team2Placement.add(contestant.getContestantId());
-        } finally {
-            lock.unlock();
-        }
-        
+
+        if (contestant.getTeam() == 1)
+            team1Placement.add(contestant.getContestantId());
+        else if (contestant.getTeam() == 2)
+            team2Placement.add(contestant.getContestantId());
+
+        lock.unlock();
     }
 
     public void resetTeamPlacement() {
         lock.lock();
-        try {
-            team1Placement.clear();
-            team2Placement.clear();
-        } finally {
-            lock.unlock();
-        }
-        
+
+        team1Placement.clear();
+        team2Placement.clear();
+
+        lock.unlock();
     }
+        
 
     public void printGameHeader() {
         lock.lock();
-        try {
-            printer.printf("Game %1d%n", gameNumber);
-            printColumnHeader();
-            printer.flush();
-        } finally {
-            lock.unlock();
-        }
+
+        printer.printf("Game %1d%n", gameNumber);
+        printColumnHeader();
+        printer.flush();
+
+        lock.unlock();
+        
         
     }
 
@@ -162,7 +145,7 @@ public class GeneralInformationRepository {
         Thread thread = Thread.currentThread();
 
         lock.lock();
-        try {
+
             if (thread instanceof Contestant)
                 addContestant((Contestant) thread);
             else if (thread instanceof Coach)
@@ -174,15 +157,15 @@ public class GeneralInformationRepository {
             printTrialResult(trialNumber, flagPosition);
         
             printer.flush();
-        } finally {
+
             lock.unlock();
-        }
+
         
     }
 
     public void printGameResult(GameScore score) {
         lock.lock();
-        try {
+
             switch(score) {
                 case VICTORY_TEAM_1_BY_KNOCKOUT:
                     printGameWinnerByKnockOut(gameNumber, 1, trialNumber);
@@ -200,10 +183,8 @@ public class GeneralInformationRepository {
                     printGameDraw(gameNumber);
                     break;
             }
-        } finally {
+
             lock.unlock();
-        }
-        
     }
 
     public void printMatchWinner(int team, int score1, int score2) {

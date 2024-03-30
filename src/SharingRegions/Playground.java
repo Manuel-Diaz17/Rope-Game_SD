@@ -104,6 +104,7 @@ public class Playground {
         lock.lock();
 
         coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+        GeneralInformationRepository.getInstance().printLineUpdate();
 
         try {
             while(!isTeamInPlace(coach.getTeam())) {
@@ -179,14 +180,12 @@ public class Playground {
 
     public void resultAsserted() {
         lock.lock();
-        try{
-            this.pullCounter = 0;
+
+        this.pullCounter = 0;
             
-            this.resultAssert.signalAll();
-        }
-        finally{
+        this.resultAssert.signalAll();
+
         lock.unlock();
-        }
     }
 
     
@@ -243,12 +242,15 @@ public class Playground {
     
     
     public int getFlagPosition() {
+        int result;
+
         lock.lock();
-        try {
-            return this.flagPosition;
-        } finally {
-            lock.unlock();
-        }
+
+        result = this.flagPosition;
+
+        lock.unlock();
+
+        return result;
     }
     
 
@@ -259,12 +261,15 @@ public class Playground {
 
 
     public int getLastFlagPosition() {
+        int result;
+
         lock.lock();
-        try {
-            return this.lastFlagPosition;
-        } finally {
-            lock.unlock();
-        }
+
+        result = this.lastFlagPosition;
+
+        lock.unlock();
+
+        return result;
     }
     
 
@@ -272,12 +277,12 @@ public class Playground {
         List<Contestant>[] teams = new List[2];
 
         lock.lock();
-        try {
-            teams[0] = new ArrayList<>(this.teams[0]);
-            teams[1] = new ArrayList<>(this.teams[1]);
-        } finally {
-            lock.unlock();
-        }
+
+        teams[0] = new ArrayList<>(this.teams[0]); 
+        teams[1] = new ArrayList<>(this.teams[1]);
+
+        lock.unlock();
+
         return teams;
     }
     

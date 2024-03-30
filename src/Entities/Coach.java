@@ -4,6 +4,7 @@ import SharingRegions.ContestantsBench;
 import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -62,7 +63,10 @@ public class Coach extends Thread implements Comparable<Coach>{
         Set<Integer> pickedTeam = new HashSet<>();
 
         List<Contestant> contestants = new LinkedList<>(bench.getBench());
-        contestants.sort(comparator);
+        //contestants.sort(comparator);
+
+        // Shuffle the list of contestants
+        Collections.shuffle(contestants);
 
         for(Contestant contestant : contestants) {
             if(pickedTeam.size() == 3) {
