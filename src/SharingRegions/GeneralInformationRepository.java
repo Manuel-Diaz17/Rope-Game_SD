@@ -66,106 +66,123 @@ public class GeneralInformationRepository {
 
     public void addReferee(Referee referee) {
         lock.lock();
-
-        refereeState = referee.getRefereeState();
-
-        lock.unlock();
+        try {
+            refereeState = referee.getRefereeState();
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     public void addContestant(Contestant contestant) {
         lock.lock();
-
-        this.teams[contestant.getTeam()-1].add(contestant);
-
-        lock.unlock();
+        try {
+            this.teams[contestant.getTeam() - 1].add(contestant);
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     public void addCoach(Coach coach) {
         lock.lock();
-
-        this.coaches.add(coach);
-
-        lock.unlock();
+        try {
+            this.coaches.add(coach);
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     public void setGameNumber(int gameNumber) {
         lock.lock();
-
-        this.gameNumber = gameNumber;
-
-        lock.unlock();
+        try {
+            this.gameNumber = gameNumber;
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     public void setTrialNumber(int trialNumber) {
         lock.lock();
-
-        this.trialNumber = trialNumber;
-
-        lock.unlock();
+        try {
+            this.trialNumber = trialNumber;
+        } finally {
+            lock.unlock();
+        }
     }
+    
 
     public void setFlagPosition(int flagPosition) {
         lock.lock();
-
-        this.flagPosition = flagPosition;
-        lock.unlock();
+        try {
+            this.flagPosition = flagPosition;
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public  void setTeamPlacement() {
         Contestant contestant = (Contestant) Thread.currentThread();
 
         lock.lock();
-
-        if(contestant.getTeam() == 1)
-            team1Placement.add(contestant.getContestantId());
-        else if(contestant.getTeam() == 2)
-            team2Placement.add(contestant.getContestantId());
-
-        lock.unlock();
+        try {
+            if (contestant.getTeam() == 1)
+                team1Placement.add(contestant.getContestantId());
+            else if (contestant.getTeam() == 2)
+                team2Placement.add(contestant.getContestantId());
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void resetTeamPlacement() {
         lock.lock();
-
-        team1Placement.clear();
-        team2Placement.clear();
-
-        lock.unlock();
+        try {
+            team1Placement.clear();
+            team2Placement.clear();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void printGameHeader() {
         lock.lock();
-
-        printer.printf("Game %1d%n", gameNumber);
-        printColumnHeader();
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf("Game %1d%n", gameNumber);
+            printColumnHeader();
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void printLineUpdate() {
         Thread thread = Thread.currentThread();
-        
+
         lock.lock();
+        try {
+            if (thread instanceof Contestant)
+                addContestant((Contestant) thread);
+            else if (thread instanceof Coach)
+                addCoach((Coach) thread);
+            else if (thread instanceof Referee)
+                addReferee((Referee) thread);
         
-        if(thread.getClass() == Contestant.class)
-            addContestant((Contestant) thread);
-        else if(thread.getClass() == Coach.class)
-            addCoach((Coach) thread);
-        else
-            addReferee((Referee) thread);
-
-        printActiveEntitiesStates();
-        printTrialResult(trialNumber, flagPosition);
-
-        printer.flush();
-
-        lock.unlock();
+            printActiveEntitiesStates();
+            printTrialResult(trialNumber, flagPosition);
+        
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void printGameResult(GameScore score) {
         lock.lock();
-
+        try {
             switch(score) {
                 case VICTORY_TEAM_1_BY_KNOCKOUT:
                     printGameWinnerByKnockOut(gameNumber, 1, trialNumber);
@@ -177,155 +194,182 @@ public class GeneralInformationRepository {
                     printGameWinnerByKnockOut(gameNumber, 2, trialNumber);
                     break;
                 case VICTORY_TEAM_2_BY_POINTS:
-                    printGameWinnerByPoints(gameNumber, 1);
+                    printGameWinnerByPoints(gameNumber, 2);
                     break;
                 case DRAW:
                     printGameDraw(gameNumber);
                     break;
+            }
+        } finally {
+            lock.unlock();
         }
-
-        lock.unlock();
+        
     }
 
     public void printMatchWinner(int team, int score1, int score2) {
         lock.lock();
-
-        printer.printf("Match was won by team %d (%d-%d).%n", team, score1, score2);
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf("Match was won by team %d (%d-%d).%n", team, score1, score2);
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void printMatchDraw() {
         lock.lock();
-
-        printer.printf("Match was a draw.%n");
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf("Match was a draw.%n");
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void printLegend() {
         lock.lock();
-
-        printer.printf("Legend:%n");
-        printer.printf("Ref Sta – state of the referee%n");
-        printer.printf("Coa # Stat - state of the coach of team # (# - 1 .. 2)%n");
-        printer.printf("Cont # Sta – state of the contestant # (# - 1 .. 5) of team whose coach was listed to the immediate left%n");
-        printer.printf("Cont # SG – strength of the contestant # (# - 1 .. 5) of team whose coach was listed to the immediate left%n");
-        printer.printf("TRIAL – ? – contestant identification at the position ? at the end of the rope for present trial (? - 1 .. 3)%n");
-        printer.printf("TRIAL – NB – trial number%n");
-        printer.printf("TRIAL – PS – position of the centre of the rope at the beginning of the trial%n");
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf("Legend:%n");
+            printer.printf("Ref Sta - state of the referee%n");
+            printer.printf("Coa # Stat - state of the coach of team # (# - 1 .. 2)%n");
+            printer.printf("Cont # Sta - state of the contestant # (# - 1 .. 5) of team whose coach was listed to the immediate left%n");
+            printer.printf("Cont # SG - strength of the contestant # (# - 1 .. 5) of team whose coach was listed to the immediate left%n");
+            printer.printf("TRIAL - ? - contestant identification at the position ? at the end of the rope for present trial (? - 1 .. 3)%n");
+            printer.printf("TRIAL - NB - trial number%n");
+            printer.printf("TRIAL - PS - position of the centre of the rope at the beginning of the trial%n");
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     public void printHeader(){
         lock.lock();
-
-        printer.printf("Game of the Rope - Description of the internal state%n");
-        printer.printf("%n");
-        printColumnHeader();       
-        printActiveEntitiesStates();
-        printEmptyResult();
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf("Game of the Rope - Description of the internal state%n");
+            printer.printf("%n");
+            printColumnHeader();
+            printActiveEntitiesStates();
+            printEmptyResult();
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     private void printColumnHeader() {
         lock.lock();
-
-        printer.printf("Ref Coa 1 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Coa 2 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Trial%n");
-        printer.printf("Sta  Stat Sta SG Sta SG Sta SG Sta SG Sta SG  Stat Sta SG Sta SG Sta SG Sta SG Sta SG 3 2 1 . 1 2 3 NB PS%n");
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf("Ref Coa 1 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Coa 2 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Trial%n");
+            printer.printf("Sta  Stat Sta SG Sta SG Sta SG Sta SG Sta SG  Stat Sta SG Sta SG Sta SG Sta SG Sta SG 3 2 1 . 1 2 3 NB PS%n");
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     private void printActiveEntitiesStates() {
         lock.lock();
-
-        printer.printf("%3s", refereeState);
-
-        // Printing teams state
-        for(Coach coach : coaches) {
-            printer.printf("  %4s", coach.getCoachState());
-
-            for(Contestant contestant : teams[coach.getTeam()-1]) {
-                //esta linha está com os tuplos, tenho que voltar atrás para não os usar
-                printer.printf(" %3s %2d", contestant.getContestantState(), contestant.getStrength());
+        try {
+            printer.printf("%3s", refereeState);
+        
+            // Printing teams state
+            for (Coach coach : coaches) {
+                printer.printf("  %4s", coach.getCoachState());
+        
+                for (Contestant contestant : teams[coach.getTeam() - 1]) {
+                    printer.printf(" %3s %2d", contestant.getContestantState(), contestant.getStrength());
+                }
             }
+        } finally {
+            lock.unlock();
         }
-
-        lock.unlock();
+        
     }
 
     private void printEmptyResult() {
         lock.lock();
-
-        printer.printf(" - - - . - - - -- --%n");    
-        printer.flush();
-
-        lock.unlock();
+        try {
+            printer.printf(" - - - . - - - -- --%n");
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 
     private void printTrialResult(int trialNumber, int flagPosition) {
         lock.lock();
-
-        for(int i = 0; i < 3; i++) {
-            if(i >= team1Placement.size())
-                printer.printf(" -");
-            else 
-                printer.printf(" %1d", team1Placement.get(i));        }
+        try {
+            for(int i = 0; i < 3; i++) {
+                if(i >= team1Placement.size())
+                    printer.printf(" -");
+                else 
+                    printer.printf(" %1d", team1Placement.get(i));
+            }
+            
+            printer.printf(" .");
+            
+            for(int i = 0; i < 3; i++) {
+                if(i >= team2Placement.size())
+                    printer.printf(" -");
+                else 
+                    printer.printf(" %1d", team2Placement.get(i));
+            }
+            
+            printer.printf(" %2d %2d%n", trialNumber, flagPosition);
+        } finally {
+            lock.unlock();
+        }
         
-        printer.printf(" .");
-
-        for(int i = 0; i < 3; i++) {
-            if(i >= team2Placement.size())
-                printer.printf(" -");
-            else 
-                printer.printf(" %1d", team2Placement.get(i));        }
-
-        printer.printf(" %2d %2d%n", trialNumber, flagPosition);
-
-        lock.unlock();
     }
 
     private void printGameWinnerByKnockOut(int game, int team, int trials) {
         lock.lock();
+        try {
+            printer.printf("Game %d was won by team %d by knock out in %d trials.%n", game, team, trials);
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
         
-        printer.printf("Game %d was won by team %d by knock out in %d trials.%n", game, team, trials);
-        printer.flush();
-
-        lock.unlock();
     }
 
     private void printGameWinnerByPoints(int game, int team) {
         lock.lock();
+        try {
+            printer.printf("Game %d was won by team %d by points.%n", game, team);
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
         
-        printer.printf("Game %d was won by team %d by points.%n", game, team);
-        printer.flush();
-
-        lock.unlock();
     }
 
     private void printGameDraw(int game) {
         lock.lock();
+        try {
+            printer.printf("Game %d was a draw.%n", game);
+            printer.flush();
+        } finally {
+            lock.unlock();
+        }
         
-        printer.printf("Game %d was a draw.%n", game);
-        printer.flush();
-
-        lock.unlock();
     }    
 
     public void close() {
         lock.lock();
-
-        printer.flush();
-        printer.close();
-
-        lock.unlock();
+        try {
+            printer.flush();
+            printer.close();
+        } finally {
+            lock.unlock();
+        }
+        
     }
 }

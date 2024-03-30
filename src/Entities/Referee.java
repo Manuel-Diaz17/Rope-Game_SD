@@ -41,7 +41,8 @@ public class Referee extends Thread{
                     break;
                 case WAIT_FOR_TRIAL_CONCLUSION:
                     assertTrialDecision();
-                    
+                    System.out.println("WAIT_FOR_TRIAL_CONCLUSION");
+                    //System.out.println("isGameEnd():" + isGameEnd());
                     if(isGameEnd()) {
                         declareGameWinner();
                     } else {
@@ -92,12 +93,18 @@ public class Referee extends Thread{
     private void assertTrialDecision() {
         int lastFlagPosition = Playground.getInstance().getLastFlagPosition();
         int flagPosition = Playground.getInstance().getFlagPosition();
+        System.out.println("lastFlagPosition: " + lastFlagPosition);
+        System.out.println("flagPosition: " + flagPosition);
+        System.out.println("Difference: " + (flagPosition - lastFlagPosition));
 
         if(flagPosition - lastFlagPosition == 0) {
+            System.out.println("DRAW");
             RefereeSite.getInstance().addTrialPoint(TrialScore.DRAW);
         } else if(flagPosition - lastFlagPosition < 0) {
+            System.out.println(" VICTORY_TEAM_1");
             RefereeSite.getInstance().addTrialPoint(TrialScore.VICTORY_TEAM_1);
         } else {
+            System.out.println("VICTORY_TEAM_2");
             RefereeSite.getInstance().addTrialPoint(TrialScore.VICTORY_TEAM_2);
         }
 
@@ -175,9 +182,15 @@ public class Referee extends Thread{
 
     private boolean isGameEnd() {
         if(Math.abs(Playground.getInstance().getFlagPosition()) >= 4)
+        {
+            //System.out.println("Acabou game");
             return true;
+        }
         else if(RefereeSite.getInstance().getRemainingTrials() == 0)
+        {
+            //System.out.println("Acabou game");
             return true;
+        }
 
         return false;
     }

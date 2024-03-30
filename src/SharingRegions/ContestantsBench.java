@@ -77,22 +77,31 @@ public class ContestantsBench {
     
     public void addContestant() {
         Contestant contestant = (Contestant) Thread.currentThread();
+        
         lock.lock();
-        try {
-            bench.add(contestant);
+        
+        bench.add(contestant);
+
+        if(contestant.getContestantState() != ContestantState.SEAT_AT_THE_BENCH) {
             contestant.setContestantState(ContestantState.SEAT_AT_THE_BENCH);
-            if (allPlayersAreSeated()) {
-                allPlayersSeated.signal();
-            }
+            GeneralInformationRepository.getInstance().printLineUpdate();
+        }
+        
+        if(allPlayersAreSeated()) {
+            allPlayersSeated.signal();
+        }
+        
+        try {
             do {
                 playersSelected.await();
-            } while (!playerIsSelected());
+            } while(!playerIsSelected() && !RefereeSite.getInstance().isMatchEnded());
         } catch (InterruptedException ex) {
-            // Tratar a interrupção conforme necessário
-            System.out.println("Interrupted while adding contestant.");
-        } finally {
             lock.unlock();
-        }
+            return;
+        } 
+            
+        lock.unlock();
+
     }
     
     public void getContestant() {
@@ -106,30 +115,37 @@ public class ContestantsBench {
     }
 
     public Set<Contestant> getBench() {
-        Set<Contestant> bench = null;
+        Set<Contestant> temp;
+        
         lock.lock();
+        
         try {
-            while (!allPlayersAreSeated()) {
+            while(!allPlayersAreSeated()) {
                 allPlayersSeated.await();
             }
-            bench = new TreeSet<>(this.bench);
         } catch (InterruptedException ex) {
-            // Tratar a interrupção conforme necessário
-            System.out.println("Interrupted while getting bench.");
-        } finally {
             lock.unlock();
+            return null;
         }
-        return bench;
+        
+        temp = new TreeSet<>(this.bench);
+        
+        lock.unlock();
+        
+        return temp;
     }
 
 
     public Set<Integer> getSelectedContestants() {
+        Set<Integer> selected = null;
+        
         lock.lock();
-        try {
-            return new TreeSet<>(this.selectedContestants);
-        } finally {
-            lock.unlock();
-        }
+        
+        selected = new TreeSet<>(this.selectedContestants);
+        
+        lock.unlock();
+        
+        return selected;
     }
 
 
@@ -147,32 +163,36 @@ public class ContestantsBench {
 
     public void pickYourTeam() {
         lock.lock();
+        
         try {
-            while (!coachWaiting) {
+            while(!coachWaiting)
                 waitForCoach.await();
-            }
-            waitForNextTrial.signal();
-        } catch (InterruptedException ex) {} 
-        finally {
-            lock.unlock();
-        }
+        } catch (InterruptedException ex) {}
+        
+        waitForNextTrial.signal();
+        
+        lock.unlock();    
     }
 
 
     public void waitForNextTrial() {
         Coach coach = (Coach) Thread.currentThread();
-        lock.lock();
-        try {
-            coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
-            coachWaiting = true;
-            waitForCoach.signal();
-            waitForNextTrial.await();
-        } catch (InterruptedException ex) {} 
         
-        finally {
-            coachWaiting = false;
-            lock.unlock();
-        }
+        lock.lock();
+        
+        coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
+        GeneralInformationRepository.getInstance().printLineUpdate();
+        
+        coachWaiting = true;
+        waitForCoach.signal();
+        
+        try {
+            waitForNextTrial.await();
+        } catch (InterruptedException ex) {}
+        
+        coachWaiting = false;
+        
+        lock.unlock();
     }
 
 

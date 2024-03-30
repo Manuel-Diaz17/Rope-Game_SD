@@ -76,80 +76,81 @@ public class Playground {
     }
 
 
-    public void checkTeamPlacement() {
-        Coach coach = (Coach) Thread.currentThread();
-
-        lock.lock();
-
-        coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-        GeneralInformationRepository.getInstance().printLineUpdate();
-
-        try {
-            lock.lock();
-            coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-            while (!isTeamInPlace(coach.getTeam())) {
-                this.teamsInPosition.await();
-            }
-        } catch (InterruptedException ex) {
-            lock.unlock();
-            return;
-        } finally {
-            lock.unlock();
-        }
-    }
-
     // public void checkTeamPlacement() {
     //     Coach coach = (Coach) Thread.currentThread();
 
     //     lock.lock();
 
     //     coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+    //     GeneralInformationRepository.getInstance().printLineUpdate();
 
     //     try {
-    //         while(!isTeamInPlace(coach.getTeam())) {
+    //         lock.lock();
+    //         coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+    //         while (!isTeamInPlace(coach.getTeam())) {
     //             this.teamsInPosition.await();
     //         }
     //     } catch (InterruptedException ex) {
     //         lock.unlock();
     //         return;
+    //     } finally {
+    //         lock.unlock();
     //     }
-    //     lock.unlock();
     // }
 
+    public void checkTeamPlacement() {
+        Coach coach = (Coach) Thread.currentThread();
+
+        lock.lock();
+
+        coach.setCoachState(CoachState.ASSEMBLE_TEAM);
+
+        try {
+            while(!isTeamInPlace(coach.getTeam())) {
+                this.teamsInPosition.await();
+            }
+        } catch (InterruptedException ex) {
+            lock.unlock();
+            return;
+        }
+        lock.unlock();
+    }
+
+
+    // public void watchTrial() {
+    //     Coach coach = (Coach) Thread.currentThread();
+    //     lock.lock();
+
+    //     coach.setCoachState(CoachState.WATCH_TRIAL);
+    //     GeneralInformationRepository.getInstance().printLineUpdate();
+
+    //     try {
+    //         coach.setCoachState(CoachState.WATCH_TRIAL);
+    //         this.resultAssert.await();
+    //     } catch (InterruptedException ex) {
+    //         lock.unlock();
+    //         return;
+    //     } finally {
+    //         lock.unlock();
+    //     }
+    // }
 
     public void watchTrial() {
         Coach coach = (Coach) Thread.currentThread();
+
         lock.lock();
 
         coach.setCoachState(CoachState.WATCH_TRIAL);
         GeneralInformationRepository.getInstance().printLineUpdate();
 
         try {
-            coach.setCoachState(CoachState.WATCH_TRIAL);
             this.resultAssert.await();
         } catch (InterruptedException ex) {
             lock.unlock();
             return;
-        } finally {
-            lock.unlock();
         }
+        lock.unlock();
     }
-
-    // public void watchTrial() {
-    //     Coach coach = (Coach) Thread.currentThread();
-
-    //     lock.lock();
-
-    //     coach.setCoachState(CoachState.WATCH_TRIAL);
-
-    //     try {
-    //         this.resultAssert.await();
-    //     } catch (InterruptedException ex) {
-    //         lock.unlock();
-    //         return;
-    //     }
-    //     lock.unlock();
-    // }
 
 
     public void pullRope() {
@@ -178,65 +179,67 @@ public class Playground {
 
     public void resultAsserted() {
         lock.lock();
-        try {
+        try{
+            this.pullCounter = 0;
+            
             this.resultAssert.signalAll();
-        } finally {
-            lock.unlock();
+        }
+        finally{
+        lock.unlock();
         }
     }
 
     
     public void startPulling() {
+
         Referee referee = (Referee) Thread.currentThread();
+        
         lock.lock();
-    
-        try {
-            this.startTrial.signalAll();
-    
-            referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
-            GeneralInformationRepository.getInstance().printLineUpdate();
-    
-            if (pullCounter != 2 * 3) {
-                try {
-                    finishedPulling.await();
-                } catch (InterruptedException ex) {
-                    // Tratar a interrupção conforme necessário
-                    System.out.println("Interrupted while waiting for trial conclusion.");
-                    return;
-                }
+        
+        this.startTrial.signalAll();
+        
+        referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
+        GeneralInformationRepository.getInstance().printLineUpdate();
+        
+        if(pullCounter != 2 * 3)
+            try {
+                finishedPulling.await();
+            } catch (InterruptedException ex) {
+                lock.unlock();
+                return;
             }
-        } finally {
-            lock.unlock();
-        }
+        
+        
+        lock.unlock();
     }
     
 
 
-    public void getContestant() {
-        Contestant contestant = (Contestant) Thread.currentThread();
-    
-        lock.lock();
-        try {
-            int teamIndex = contestant.getTeam() - 1;
-            if (teamIndex >= 0 && teamIndex < teams.length) {
-                teams[teamIndex].remove(contestant);
-            } else {System.out.println("Contestant team index out of bounds.");
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-
-    // public void getContestant(){
+    // public void getContestant() {
     //     Contestant contestant = (Contestant) Thread.currentThread();
-        
+    
     //     lock.lock();
-        
-    //     teams[contestant.getContestantTeam()-1].remove(contestant);
-        
-    //     lock.unlock();
+    //     try {
+    //         int teamIndex = contestant.getTeam() - 1;
+    //         if (teamIndex >= 0 && teamIndex < teams.length) {
+    //             teams[teamIndex].remove(contestant);
+    //         } else {System.out.println("Contestant team index out of bounds.");
+    //         }
+    //     } finally {
+    //         lock.unlock();
+    //     }
     // }
+
+
+    public void getContestant(){
+        Contestant contestant = (Contestant) Thread.currentThread();
+        
+        lock.lock();
+        
+        teams[contestant.getTeam()-1].remove(contestant);
+        
+        lock.unlock();
+    }
     
     
     public int getFlagPosition() {

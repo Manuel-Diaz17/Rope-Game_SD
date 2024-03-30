@@ -85,6 +85,7 @@ public class RefereeSite {
     public void addTrialPoint(TrialScore score) {
         lock.lock();
         try {
+            //System.out.println("buenas: " + score);
             this.trialStatus.add(score);
         } finally {
             lock.unlock();
@@ -94,7 +95,7 @@ public class RefereeSite {
     public int getRemainingTrials() {
         lock.lock();
         try {
-            return 6 - this.trialStatus.size();
+            return 3 - this.gameStatus.size();
         } finally {
             lock.unlock();
         }
@@ -135,21 +136,21 @@ public class RefereeSite {
     
     public void bothTeamsReady() {
         Referee referee = (Referee) Thread.currentThread();
-    
+        
         lock.lock();
         try {
             referee.setRefereeState(RefereeState.TEAMS_READY);
             GeneralInformationRepository.getInstance().printLineUpdate();
-    
-            if (informRefereeCounter != 2) {
+            
+            if(informRefereeCounter != 2)
                 informReferee.await();
-            }
         } catch (InterruptedException ex) {
             Logger.getLogger(RefereeSite.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            informRefereeCounter = 0;
-            lock.unlock();
         }
+        
+        informRefereeCounter = 0;
+        
+        lock.unlock();
     }
     
 
