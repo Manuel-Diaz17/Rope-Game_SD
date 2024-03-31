@@ -66,7 +66,7 @@ public class Coach extends Thread implements Comparable<Coach>{
 
         // choose strategy:
 
-        // Strongest by sirting list of contestants
+        // Strongest by sorting list of contestants
         //contestants.sort(comparator);
 
 

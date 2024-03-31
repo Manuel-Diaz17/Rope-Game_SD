@@ -118,9 +118,6 @@ public class Playground {
         lock.lock();
         
         try {
-            long waitTime = (long) (1 + Math.random() * (3 - 1));
-
-            Thread.currentThread().sleep(waitTime);
 
             this.pullCounter++;
 
@@ -226,16 +223,6 @@ public class Playground {
     
 
     
-    public void allHavePulled() {
-        lock.lock();
-        try {
-            this.finishedPulling.await();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        lock.unlock();
-    }
-
     private void flagPositionUpdate() {
         int team1 = 0;
         int team2 = 0;
