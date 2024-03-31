@@ -1,4 +1,3 @@
-package Game;
 
 import Entities.Coach;
 import Entities.Contestant;
@@ -95,17 +94,6 @@ public class Main {
                 }
             }
         }
-
-        // for (int i = 0; i < coaches.length; i++) {
-        //     while(coaches[i].isAlive())
-        //         coaches[i].interrupt();
-
-        //     for (int j = 0; j < contestants[i].length; j++) {
-        //         while(contestants[i][j].isAlive())
-        //             contestants[i][j].interrupt();
-        //     }
-        // }
-        
 
         System.out.println("\nO jogo terminou corretamente.");
     }

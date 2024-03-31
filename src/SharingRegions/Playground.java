@@ -76,28 +76,6 @@ public class Playground {
     }
 
 
-    // public void checkTeamPlacement() {
-    //     Coach coach = (Coach) Thread.currentThread();
-
-    //     lock.lock();
-
-    //     coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-    //     GeneralInformationRepository.getInstance().printLineUpdate();
-
-    //     try {
-    //         lock.lock();
-    //         coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-    //         while (!isTeamInPlace(coach.getTeam())) {
-    //             this.teamsInPosition.await();
-    //         }
-    //     } catch (InterruptedException ex) {
-    //         lock.unlock();
-    //         return;
-    //     } finally {
-    //         lock.unlock();
-    //     }
-    // }
-
     public void checkTeamPlacement() {
         Coach coach = (Coach) Thread.currentThread();
 
@@ -117,24 +95,6 @@ public class Playground {
         lock.unlock();
     }
 
-
-    // public void watchTrial() {
-    //     Coach coach = (Coach) Thread.currentThread();
-    //     lock.lock();
-
-    //     coach.setCoachState(CoachState.WATCH_TRIAL);
-    //     GeneralInformationRepository.getInstance().printLineUpdate();
-
-    //     try {
-    //         coach.setCoachState(CoachState.WATCH_TRIAL);
-    //         this.resultAssert.await();
-    //     } catch (InterruptedException ex) {
-    //         lock.unlock();
-    //         return;
-    //     } finally {
-    //         lock.unlock();
-    //     }
-    // }
 
     public void watchTrial() {
         Coach coach = (Coach) Thread.currentThread();
@@ -180,14 +140,14 @@ public class Playground {
 
     public void resultAsserted() {
         lock.lock();
-
-        this.pullCounter = 0;
-            
-        this.resultAssert.signalAll();
-
-        lock.unlock();
+        try {
+            pullCounter = 0;
+            resultAssert.signalAll();
+        } finally {
+            lock.unlock();
+        }
     }
-
+    
     
     public void startPulling() {
 
@@ -213,23 +173,6 @@ public class Playground {
     }
     
 
-
-    // public void getContestant() {
-    //     Contestant contestant = (Contestant) Thread.currentThread();
-    
-    //     lock.lock();
-    //     try {
-    //         int teamIndex = contestant.getTeam() - 1;
-    //         if (teamIndex >= 0 && teamIndex < teams.length) {
-    //             teams[teamIndex].remove(contestant);
-    //         } else {System.out.println("Contestant team index out of bounds.");
-    //         }
-    //     } finally {
-    //         lock.unlock();
-    //     }
-    // }
-
-
     public void getContestant(){
         Contestant contestant = (Contestant) Thread.currentThread();
         
@@ -242,16 +185,14 @@ public class Playground {
     
     
     public int getFlagPosition() {
-        int result;
-
         lock.lock();
-
-        result = this.flagPosition;
-
-        lock.unlock();
-
-        return result;
+        try {
+            return this.flagPosition;
+        } finally {
+            lock.unlock();
+        }
     }
+    
     
 
     public void setFlagPosition(int flagPosition) {
@@ -261,15 +202,12 @@ public class Playground {
 
 
     public int getLastFlagPosition() {
-        int result;
-
         lock.lock();
-
-        result = this.lastFlagPosition;
-
-        lock.unlock();
-
-        return result;
+        try {
+            return this.lastFlagPosition;
+        } finally {
+            lock.unlock();
+        }
     }
     
 

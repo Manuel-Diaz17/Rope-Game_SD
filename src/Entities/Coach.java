@@ -63,9 +63,14 @@ public class Coach extends Thread implements Comparable<Coach>{
         Set<Integer> pickedTeam = new HashSet<>();
 
         List<Contestant> contestants = new LinkedList<>(bench.getBench());
+
+        // choose strategy:
+
+        // Strongest by sirting list of contestants
         //contestants.sort(comparator);
 
-        // Shuffle the list of contestants
+
+        // Random by shuffling the list of contestants
         Collections.shuffle(contestants);
 
         for(Contestant contestant : contestants) {

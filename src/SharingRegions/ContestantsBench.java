@@ -108,11 +108,13 @@ public class ContestantsBench {
         Contestant contestant = (Contestant) Thread.currentThread();
         
         lock.lock();
-        
-        bench.remove(contestant);
-        
-        lock.unlock();
+        try {
+            bench.remove(contestant);
+        } finally {
+            lock.unlock();
+        }
     }
+    
 
     public Set<Contestant> getBench() {
         Set<Contestant> temp;
@@ -137,16 +139,14 @@ public class ContestantsBench {
 
 
     public Set<Integer> getSelectedContestants() {
-        Set<Integer> selected = null;
-        
         lock.lock();
-        
-        selected = new TreeSet<>(this.selectedContestants);
-        
-        lock.unlock();
-        
-        return selected;
+        try {
+            return new TreeSet<>(this.selectedContestants);
+        } finally {
+            lock.unlock();
+        }
     }
+    
 
 
     public void setSelectedContestants(Set<Integer> pickedContestants) {
