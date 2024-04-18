@@ -62,7 +62,7 @@ public class Coach extends Thread implements Comparable<Coach>{
     public Set<Integer> pickTeam(ContestantsBench bench, RefereeSite site) {
         Set<Integer> pickedTeam = new HashSet<>();
 
-        List<Contestant> contestants = new LinkedList<>(bench.getBench());
+        List<Contestant> contestants = new LinkedList<>(bench.getBench()); // Lista de COntestants
 
         // choose strategy:
 
@@ -78,11 +78,14 @@ public class Coach extends Thread implements Comparable<Coach>{
                 break;
             }
 
-            pickedTeam.add(contestant.getContestantId());
+            pickedTeam.add(contestant.getContestantId()); // store the IDs of the contestants picked for the team.
         }
 
         return pickedTeam;
     }
+
+
+
 
     private void callContestants() {
         // Contestants bench
@@ -100,6 +103,8 @@ public class Coach extends Thread implements Comparable<Coach>{
         Playground.getInstance().checkTeamPlacement();
     }
 
+
+
     private void informReferee() {
         RefereeSite.getInstance().informReferee();
 
@@ -108,6 +113,7 @@ public class Coach extends Thread implements Comparable<Coach>{
 
     private void reviewNotes() {
         ContestantsBench bench = ContestantsBench.getInstance();
+        
         Set<Integer> selectedContestants = bench.getSelectedContestants();
         Set<Contestant> allContestants = bench.getBench();
 

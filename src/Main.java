@@ -84,12 +84,12 @@ public class Main {
         for (int i = 0; i < coaches.length; i++) {
             if (coaches[i] != null) {
                 while (coaches[i].isAlive())
-                    coaches[i].interrupt();
+                    coaches[i].join();
         
                 for (int j = 0; j < contestants[i].length; j++) {
                     if (contestants[i][j] != null) {
                         while (contestants[i][j].isAlive())
-                            contestants[i][j].interrupt();
+                            contestants[i][j].join();
                     }
                 }
             }

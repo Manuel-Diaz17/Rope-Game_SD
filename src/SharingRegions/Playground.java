@@ -157,7 +157,7 @@ public class Playground {
         referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
         GeneralInformationRepository.getInstance().printLineUpdate();
         
-        if(pullCounter != 2 * 3)
+        if(pullCounter != 2 * 3)   // 3 is equal to players in the playground
             try {
                 finishedPulling.await();
             } catch (InterruptedException ex) {
