@@ -1,16 +1,35 @@
 package Entities;
 
+import Interfaces.InterfaceContestant;
+import Interfaces.InterfaceContestantsBench;
+import Interfaces.InterfaceGeneralInformationRepository;
+import Interfaces.InterfacePlayground;
+import Interfaces.InterfaceRefereeSite;
 import SharingRegions.ContestantsBench;
 import SharingRegions.GeneralInformationRepository;
 import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
 
-public class Contestant extends Thread implements Comparable<Contestant>{
+public class Contestant extends Thread implements Comparable<InterfaceContestant>, InterfaceContestant {
     private ContestantState state;
-    private final int team;
-    private final int id;
+    private int team;
+    private int id;
     private int strength;
 
+    private final InterfaceContestantsBench bench; // bench interface to be used
+    private final InterfacePlayground playground; // playground interface to be used
+    private final InterfaceRefereeSite refereeSite; // refereeSite interface to be used
+    private final InterfaceGeneralInformationRepository informationRepository; // general Information Repository interface to be used
+
+    /**
+     * Creates a Contestant instantiation for running in a distributed
+     * environment
+     *
+     * @param name of the contestant
+     * @param team of the contestant
+     * @param id of the contestant
+     * @param strength of the contestant
+     */
     public Contestant(String name, int team, int id, int strength) {
         super(name);
 
@@ -19,22 +38,40 @@ public class Contestant extends Thread implements Comparable<Contestant>{
         this.team = team;
         this.id = id;
         this.strength = strength;
+
+        bench = new ContestantsBenchStub(team);
+        playground = new PlaygroundStub();
+        refereeSite = new RefereeSiteStub();
+        informationRepository = new GeneralInformationRepositoryStub();
     }   
 
+    @Override
     public ContestantState getContestantState() {
         return state;
     }
 
+    @Override
     public void setContestantState(ContestantState state) {
         this.state = state;
     }
 
+    @Override
     public int getContestantId() {
         return id;
     }
 
+    @Override
+    public void setContestantId(int id) {
+        this.id = id;
+    }
+
     public int getTeam() {
         return team;
+    }
+
+    @Override
+    public void setTeam(int team) {
+        this.team = team;
     }
 
     public int getStrength() {
@@ -47,9 +84,11 @@ public class Contestant extends Thread implements Comparable<Contestant>{
 
     @Override
     public void run() {
-        seatDown();
-        while(!RefereeSite.getInstance().isMatchEnded()) {
-            switch(state) {
+        informationRepository.updateContestant();
+        bench.addContestant();
+
+        while (!refereeSite.hasMatchEnded()) {
+            switch (state) {
                 case SEAT_AT_THE_BENCH:
                     followCoachAdvice();
                     break;
@@ -64,57 +103,46 @@ public class Contestant extends Thread implements Comparable<Contestant>{
         }
     }
 
+    /**
+     * Contestant checks if is selected to the game. If so, goes to the
+     * playground
+     */
     private void followCoachAdvice() {
-        ContestantsBench.getInstance().getContestant();
+        bench.getContestant();
 
-        if(!RefereeSite.getInstance().isMatchEnded())
-            Playground.getInstance().addContestant();
+        if(!refereeSite.isMatchEnded())
+            playground.addContestant();
     }
 
+     /**
+     * Contestant gets ready. Changes the Contestant state to DO_YOUR_BEST
+     */
     private void getReady() {
-        this.setContestantState(ContestantState.DO_YOUR_BEST);
-        GeneralInformationRepository.getInstance().printLineUpdate();
+        setContestantState(ContestantState.DO_YOUR_BEST);
+        informationRepository.updateContestant();
+        informationRepository.printLineUpdate();
     }
 
+    /**
+     * Contestant pulls the rope
+     */
     private void pullTheRope() {
-        Playground.getInstance().pullRope();
+        playground.pullRope();
     }
 
+    /**
+     * If contestant was playing moves to his bench and changes his state to
+     * SEAT_AT_THE_BENCH
+     */
     private void seatDown() {
-        Playground.getInstance().getContestant();
+        playground.getContestant();
 
-        ContestantsBench.getInstance().addContestant();
+        bench.addContestant();
     }
 
     @Override
-    public int compareTo(Contestant contestant) {
-        return this.id - contestant.id;
+    public int compareTo(InterfaceContestant contestant) {
+        return getContestantId() - contestant.getContestantId();
     }
     
-    public enum ContestantState {
-        SEAT_AT_THE_BENCH (1, "STB"),
-        STAND_IN_POSITION (2, "SIP"),
-        DO_YOUR_BEST (3, "DYB");
-
-        private final int id;
-        private final String state;
-
-        ContestantState(int id, String state) {
-            this.id = id;
-            this.state = state;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public String getState() {
-            return state;
-        }
-
-        @Override
-        public String toString() {
-            return state;
-        }
-    }
 }
