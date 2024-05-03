@@ -87,7 +87,7 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
         informationRepository.updateContestant();
         bench.addContestant();
 
-        while (!refereeSite.hasMatchEnded()) {
+        while (!refereeSite.isMatchEnded()) {
             switch (state) {
                 case SEAT_AT_THE_BENCH:
                     followCoachAdvice();

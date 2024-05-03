@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ClientSide.GeneralInformationRepositoryStub;
 import ClientSide.Referee;
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceReferee.RefereeState;
@@ -160,7 +161,7 @@ public class RefereeSite implements InterfaceRefereeSite{
         lock.lock();
         try {
             referee.setRefereeState(RefereeState.TEAMS_READY);
-            informationRepository.updateReferre();
+            informationRepository.updateReferee();
             informationRepository.printLineUpdate();
             
             if(informRefereeCounter != 2)

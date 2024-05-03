@@ -16,6 +16,7 @@ import ServerSide.RefereeSite;
 import Interfaces.InterfaceReferee;
 
 public class Referee extends Thread implements InterfaceReferee{
+
     private RefereeState state;     // Referee state
 
     private final InterfaceRefereeSite refereeSite; // referee site interface to be used
@@ -58,7 +59,7 @@ public class Referee extends Thread implements InterfaceReferee{
         informationRepository.updateReferee();
         informationRepository.printHeader();
 
-        while(state != END_OF_THE_MATCH) {
+        while(state != RefereeState.END_OF_THE_MATCH) {
             switch(state) {
                 case START_OF_THE_MATCH:
                     announceNewGame();
@@ -213,7 +214,7 @@ public class Referee extends Thread implements InterfaceReferee{
         int score1 = 0;
         int score2 = 0;
 
-        for(GameScore score : refereesite.getGamePoints()) {
+        for(GameScore score : refereeSite.getGamePoints()) {
             if(score == GameScore.VICTORY_TEAM_1_BY_KNOCKOUT || score == GameScore.VICTORY_TEAM_1_BY_POINTS)
                 score1++;
             else if(score == GameScore.VICTORY_TEAM_2_BY_KNOCKOUT || score == GameScore.VICTORY_TEAM_2_BY_POINTS)
@@ -231,7 +232,7 @@ public class Referee extends Thread implements InterfaceReferee{
         else
             informationRepository.printMatchDraw();
 
-        refereesite.setIsMatchEnded(true);
+        refereeSite.setIsMatchEnded(true);
 
     }
 

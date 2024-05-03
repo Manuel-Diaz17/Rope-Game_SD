@@ -1,3 +1,4 @@
+package Game;
 
 import ClientSide.Coach;
 import ClientSide.Contestant;

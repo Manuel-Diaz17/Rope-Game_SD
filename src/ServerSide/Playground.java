@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import ClientSide.Coach;
 import ClientSide.Contestant;
+import ClientSide.GeneralInformationRepositoryStub;
 import ClientSide.Referee;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceCoach.CoachState;
