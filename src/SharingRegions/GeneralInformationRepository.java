@@ -13,17 +13,27 @@ import java.io.PrintWriter;
 import Entities.Coach;
 import Entities.Contestant;
 import Entities.Referee;
-import Entities.Referee.RefereeState;
-import SharingRegions.RefereeSite.GameScore;
+import Interfaces.InterfaceCoach;
+import Interfaces.InterfaceCoach.CoachState;
+import Interfaces.InterfaceContestant;
+import Interfaces.InterfaceContestant.ContestantState;
+import Interfaces.InterfaceGeneralInformationRepository;
+import Interfaces.InterfaceReferee;
+import Interfaces.InterfaceReferee.RefereeState;
+import Interfaces.InterfaceRefereeSite.GameScore;
+import Interfaces.Tuple;
 
-public class GeneralInformationRepository {
+/**
+ * This is an passive class that logs entities activity
+ */
+public class GeneralInformationRepository implements InterfaceGeneralInformationRepository{
     private static GeneralInformationRepository instance;
 
     private final Lock lock;
     private PrintWriter printer;
 
-    private final Set<Contestant>[] teams;
-    private final Set<Coach> coaches;
+    private final List<Tuple<ContestantState, Integer>[]> teams;
+    private final CoachState[] coaches;
     private RefereeState refereeState;
 
     private final List<Integer> team1Placement;
@@ -34,6 +44,14 @@ public class GeneralInformationRepository {
 
     private int flagPosition;
 
+    private boolean headerPrinted;
+    private int shutdownVotes;
+
+    /**
+     * Gets an instance of the general information repository
+     *
+     * @return general information repository instance
+     */
     public static synchronized GeneralInformationRepository getInstance() {
         if(instance == null)
             instance = new GeneralInformationRepository();
@@ -41,6 +59,9 @@ public class GeneralInformationRepository {
         return instance;
     }
 
+    /**
+     * Private constructor for the singleton
+     */
     private GeneralInformationRepository() {
         lock = new ReentrantLock();
 
@@ -50,10 +71,13 @@ public class GeneralInformationRepository {
             printer = null;
         }
 
-        teams = new Set[2];
-        teams[0] = new TreeSet<>();
-        teams[1] = new TreeSet<>();
-        coaches = new TreeSet<>();
+        headerPrinted = false;
+
+        teams = new LinkedList<>();
+        teams.add(new Tuple[5]);
+        teams.add(new Tuple[5]);
+
+        coaches = new CoachState[2];
 
         gameNumber = 1;
         trialNumber = 1;
@@ -62,9 +86,14 @@ public class GeneralInformationRepository {
         team2Placement = new LinkedList<>();
 
         flagPosition = 0;
+
+        shutdownVotes = 0;
     }
 
-    public void addReferee(Referee referee) {
+    @Override
+    public void updateReferee() {
+        InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
+
         lock.lock();
         try {
             refereeState = referee.getRefereeState();
@@ -73,24 +102,49 @@ public class GeneralInformationRepository {
         }
     }
     
-    public void addContestant(Contestant contestant) {
+    @Override
+    public void updateContestant() {
+        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
+
         lock.lock();
+
+        int team = contestant.getTeam() - 1;
+        int id = contestant.getContestantId() - 1;
+
         try {
-            this.teams[contestant.getTeam() - 1].add(contestant);
+            this.teams.get(team)[id] = new Tuple<>(contestant.getContestantState(), contestant.getStrength());
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void updateContestantStrength(int team, int id, int strength) {
+        lock.lock();
+
+        ContestantState state = teams.get(team - 1)[id - 1].getLeft();
+
+        this.teams.get(team - 1)[id - 1] = new Tuple<>(state, strength);
+
+        lock.unlock();
+    }
+    
+    @Override
+    public void updateCoach() {
+        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
+
+        lock.lock();
+
+        int team = coach.getTeam() - 1;
+
+        try {
+            this.coaches[team] = coach.getCoachState();
         } finally {
             lock.unlock();
         }
     }
     
-    public void addCoach(Coach coach) {
-        lock.lock();
-        try {
-            this.coaches.add(coach);
-        } finally {
-            lock.unlock();
-        }
-    }
-    
+    @Override
     public void setGameNumber(int gameNumber) {
         lock.lock();
         try {
@@ -99,7 +153,8 @@ public class GeneralInformationRepository {
             lock.unlock();
         }
     }
-    
+
+    @Override
     public void setTrialNumber(int trialNumber) {
         lock.lock();
         try {
@@ -109,7 +164,7 @@ public class GeneralInformationRepository {
         }
     }
     
-
+    @Override
     public void setFlagPosition(int flagPosition) {
         lock.lock();
         try {
@@ -120,8 +175,9 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public  void setTeamPlacement() {
-        Contestant contestant = (Contestant) Thread.currentThread();
+        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
 
         lock.lock();
         try {
@@ -135,17 +191,23 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public void resetTeamPlacement() {
+        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
+
         lock.lock();
         try {
-            team1Placement.clear();
-            team2Placement.clear();
+            if (contestant.getTeam() == 1)
+                team1Placement.remove(team1Placement.indexOf(contestant.getContestantId()));
+            else if (contestant.getTeam() == 2)
+                team2Placement.remove(team2Placement.indexOf(contestant.getContestantId()));
         } finally {
             lock.unlock();
         }
         
     }
 
+    @Override
     public void printGameHeader() {
         lock.lock();
         try {
@@ -158,28 +220,23 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public void printLineUpdate() {
-        Thread thread = Thread.currentThread();
-
         lock.lock();
         try {
-            if (thread instanceof Contestant)
-                addContestant((Contestant) thread);
-            else if (thread instanceof Coach)
-                addCoach((Coach) thread);
-            else if (thread instanceof Referee)
-                addReferee((Referee) thread);
-        
-            printActiveEntitiesStates();
-            printTrialResult(trialNumber, flagPosition);
-        
-            printer.flush();
+            if (headerPrinted){
+                printActiveEntitiesStates();
+                printTrialResult(trialNumber, flagPosition);
+            
+                printer.flush();
+            }
         } finally {
             lock.unlock();
         }
-        
+
     }
 
+    @Override
     public void printGameResult(GameScore score) {
         lock.lock();
         try {
@@ -206,6 +263,7 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public void printMatchWinner(int team, int score1, int score2) {
         lock.lock();
         try {
@@ -217,6 +275,7 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public void printMatchDraw() {
         lock.lock();
         try {
@@ -228,6 +287,7 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public void printLegend() {
         lock.lock();
         try {
@@ -246,6 +306,7 @@ public class GeneralInformationRepository {
         
     }
 
+    @Override
     public void printHeader(){
         lock.lock();
         try {
@@ -261,6 +322,9 @@ public class GeneralInformationRepository {
         
     }
 
+    /**
+     * Prints game column header
+     */
     private void printColumnHeader() {
         lock.lock();
         try {
@@ -273,17 +337,22 @@ public class GeneralInformationRepository {
         
     }
 
+    /**
+     * Prints active entities states
+     *
+     * @return a single string with all states
+     */
     private void printActiveEntitiesStates() {
         lock.lock();
         try {
             printer.printf("%3s", refereeState);
         
             // Printing teams state
-            for (Coach coach : coaches) {
-                printer.printf("  %4s", coach.getCoachState());
+            for (int i = 0; i < coaches.length; i++) {
+                printer.printf("  %4s", coaches[i]);
         
-                for (Contestant contestant : teams[coach.getTeam() - 1]) {
-                    printer.printf(" %3s %2d", contestant.getContestantState(), contestant.getStrength());
+                for (int j = 0; j < teams.get(i).length; j++) {
+                    printer.printf(" %3s %2d", teams.get(i)[j].getLeft(), teams.get(i)[j].getRight());
                 }
             }
         } finally {
@@ -292,6 +361,9 @@ public class GeneralInformationRepository {
         
     }
 
+    /**
+     * Prints an empty result
+     */
     private void printEmptyResult() {
         lock.lock();
         try {
@@ -303,6 +375,13 @@ public class GeneralInformationRepository {
         
     }
 
+    /**
+     * Prints trial result
+     *
+     * @param trialNumber number of the trial
+     * @param flagPosition position of the flag
+     * @return a String with all the information in a single string
+     */
     private void printTrialResult(int trialNumber, int flagPosition) {
         lock.lock();
         try {
@@ -329,6 +408,13 @@ public class GeneralInformationRepository {
         
     }
 
+    /**
+     * Prints a game winner by knock out
+     *
+     * @param game number of the game
+     * @param team number of the team
+     * @param trials in how many trials
+     */
     private void printGameWinnerByKnockOut(int game, int team, int trials) {
         lock.lock();
         try {
@@ -340,6 +426,12 @@ public class GeneralInformationRepository {
         
     }
 
+     /**
+     * Prints that a game was won by points
+     *
+     * @param game number of the game
+     * @param team that won the game
+     */
     private void printGameWinnerByPoints(int game, int team) {
         lock.lock();
         try {
@@ -351,6 +443,11 @@ public class GeneralInformationRepository {
         
     }
 
+    /**
+     * Print that the game was a draw
+     *
+     * @param game number that was a draw
+     */
     private void printGameDraw(int game) {
         lock.lock();
         try {
@@ -362,6 +459,7 @@ public class GeneralInformationRepository {
         
     }    
 
+    @Override
     public void close() {
         lock.lock();
         try {
@@ -371,5 +469,23 @@ public class GeneralInformationRepository {
             lock.unlock();
         }
         
+    }
+
+    @Override
+    public boolean shutdown() {
+        boolean result = false;
+
+        lock.lock();
+
+        shutdownVotes++;
+
+        if (shutdownVotes == (1 + 2 * (1 + 5))) {
+            result = true;
+            close();
+        }
+
+        lock.unlock();
+
+        return result;
     }
 }

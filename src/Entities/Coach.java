@@ -16,6 +16,7 @@ import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
+import Interfaces.Tuple;
 
 public class Coach extends Thread implements Comparable<InterfaceCoach>, InterfaceCoach {
 
@@ -77,7 +78,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
         informationRepository.updateCoach();
         bench.waitForNextTrial();
 
-        while (!refereeSite.hasMatchEnded()) {
+        while (!refereeSite.isMatchEnded()) {
             switch (state) {
                 case WAIT_FOR_REFEREE_COMMAND:
                     callContestants();
@@ -97,10 +98,10 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      * a random strategy
      */
 
-    public Set<Integer> pickTeam(ContestantsBench bench, RefereeSite site) {
+    public Set<Integer> pickTeam(InterfaceContestantsBench bench, InterfaceRefereeSite site) {
         Set<Integer> pickedTeam = new HashSet<>();
 
-        List<Contestant> contestants = new LinkedList<>(bench.getBench()); // Lista de COntestants
+        List<Tuple<Integer, Integer>> contestants = new LinkedList<>(bench.getBench()); // List of Contestants
 
         // choose strategy:
 
@@ -111,12 +112,12 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
         // Random by shuffling the list of contestants
         Collections.shuffle(contestants);
 
-        for(Contestant contestant : contestants) {
-            if(pickedTeam.size() == 3) {
+        for (Tuple<Integer, Integer> cont : contestants) {
+            if (pickedTeam.size() == 3) {
                 break;
             }
 
-            pickedTeam.add(contestant.getContestantId()); // store the IDs of the contestants picked for the team.
+            pickedTeam.add(cont.getLeft());
         }
 
         return pickedTeam;
@@ -155,14 +156,14 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
     private void reviewNotes() {
         
         Set<Integer> selectedContestants = bench.getSelectedContestants();
-        Set<Contestant> allContestants = bench.getBench();
+        Set<Tuple<Integer, Integer>> allContestants = bench.getBench();
 
         if(allContestants != null) {
-            for(Contestant contestant : allContestants) {
-                if(selectedContestants.contains(contestant.getContestantId())) {
-                    contestant.setStrength(contestant.getStrength() - 1);
+            for (int i = 1; i <= 5; i++) {
+                if (selectedContestants.contains(i)) {
+                    bench.updateContestantStrength(i, -1);
                 } else {
-                    contestant.setStrength(contestant.getStrength() + 1);
+                    bench.updateContestantStrength(i, 1);
                 }
             }
         }
@@ -172,7 +173,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
 
     @Override
     public int compareTo(InterfaceCoach coach) {
-        return getCoachTeam() - coach.getCoachTeam();
+        return getTeam() - coach.getTeam();
     }
 
 }

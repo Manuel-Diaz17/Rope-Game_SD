@@ -1,14 +1,10 @@
-package Others;
+package Interfaces;
 
 import java.util.Set;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the contestants bench
- *
- * @author Eduardo Sousa - eduardosousa@ua.pt
- * @author Guilherme Cardoso - gjc@ua.pt
- * @version 2016-2
  */
 public interface InterfaceContestantsBench {
 

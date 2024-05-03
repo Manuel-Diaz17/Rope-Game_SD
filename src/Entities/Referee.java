@@ -7,14 +7,14 @@ import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
+import Interfaces.InterfaceRefereeSite.GameScore;
+import Interfaces.InterfaceRefereeSite.TrialScore;
 import Interfaces.InterfaceReferee;
 
 import SharingRegions.ContestantsBench;
 import SharingRegions.GeneralInformationRepository;
 import SharingRegions.Playground;
 import SharingRegions.RefereeSite;
-import SharingRegions.RefereeSite.GameScore;
-import SharingRegions.RefereeSite.TrialScore;
 
 public class Referee extends Thread implements InterfaceReferee{
     private RefereeState state;     // Referee state

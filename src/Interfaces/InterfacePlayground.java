@@ -1,14 +1,10 @@
-package Others;
+package Interfaces;
 
 import java.util.List;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the playground
- *
- * @author Eduardo Sousa - eduardosousa@ua.pt
- * @author Guilherme Cardoso - gjc@ua.pt
- * @version 2016-2
  */
 public interface InterfacePlayground {
 
@@ -22,7 +18,7 @@ public interface InterfacePlayground {
      *
      * @return true if every Contestant is in place to pull the rope
      */
-    boolean checkAllContestantsReady();
+    boolean areAllContestantsReady();
 
     /**
      * Synchronisation point for waiting for the teams to be ready
@@ -59,7 +55,7 @@ public interface InterfacePlayground {
     /**
      * Checks if everyone pulled the rope
      */
-    void haveAllPulled();
+    void allHavePulled();
 
     /**
      * Contestant pulls the rope

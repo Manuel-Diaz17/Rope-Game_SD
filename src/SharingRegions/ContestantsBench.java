@@ -1,5 +1,7 @@
 package SharingRegions;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -7,49 +9,52 @@ import java.util.TreeSet;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import Entities.Coach;
-import Entities.Coach.CoachState;
-import Entities.Contestant.ContestantState;
 import Entities.Contestant;
+import Interfaces.InterfaceCoach;
+import Interfaces.InterfaceCoach.CoachState;
+import Interfaces.InterfaceContestant;
+import Interfaces.InterfaceContestant.ContestantState;
+import Interfaces.InterfaceContestantsBench;
+import Interfaces.InterfaceGeneralInformationRepository;
+import Interfaces.InterfaceRefereeSite;
+import Interfaces.Tuple;
 
-public class ContestantsBench {
+/**
+ * This is an passive class that describes the contestants bench for each team
+ */
+public class ContestantsBench implements InterfaceContestantsBench{
     private static final ContestantsBench[] instances = new ContestantsBench[2];
 
-    private final int team;
     private final Lock lock;
     private final Condition allPlayersSeated;
     private final Condition playersSelected;
     private final Condition waitForNextTrial;
     private final Condition waitForCoach;
 
-    private final Set<Contestant> bench;
+    private final Set<InterfaceContestant> bench;
     private final Set<Integer> selectedContestants;
 
     private boolean coachWaiting;
+    private static int shutdownVotes;
 
-    public static synchronized ContestantsBench getInstance() {
-        int team = -1;
+    private final InterfaceRefereeSite refereeSite;
+    private final InterfaceGeneralInformationRepository informationRepository;
 
-        if(Thread.currentThread().getClass() == Contestant.class) {
-            team = ((Contestant) Thread.currentThread()).getTeam();
-        } else if(Thread.currentThread().getClass() == Coach.class) {
-            team = ((Coach) Thread.currentThread()).getTeam();
-        }
-
-        if(instances[team-1] == null) {
-            instances[team-1] = new ContestantsBench(team);
-        }
-
-        return instances[team-1];
-    }
-
+    /**
+     * Gets all the instances of the Contestants Bench
+     *
+     * @return list containing contestants benches
+     */
     public static synchronized List<ContestantsBench> getInstances() {
         List<ContestantsBench> temp = new LinkedList<>();
 
         for(int i = 0; i < instances.length; i++) {
             if(instances[i] == null) {
-                instances[i] = new ContestantsBench(i);
+                instances[i] = new ContestantsBench();
             }
 
             temp.add(instances[i]);
@@ -58,8 +63,10 @@ public class ContestantsBench {
         return temp;
     }
 
-    private ContestantsBench(int team) {
-        this.team = team;
+     /**
+     * Private constructor to be used in the doubleton
+     */
+    private ContestantsBench() {
         lock = new ReentrantLock();
 
         allPlayersSeated = lock.newCondition();
@@ -69,14 +76,16 @@ public class ContestantsBench {
 
         bench = new TreeSet<>();
         selectedContestants = new TreeSet<>();
-    }
 
-    public int getTeam() {
-        return team;
+        refereeSite = new RefereeSiteStub();
+        informationRepository = new GeneralInformationRepositoryStub();
+        shutdownVotes = 0;
+        coachWaiting = false;
     }
     
+    @Override
     public void addContestant() {
-        Contestant contestant = (Contestant) Thread.currentThread();
+        InterfaceContestant contestant = (Contestant) Thread.currentThread();
         
         lock.lock();
         
@@ -84,17 +93,18 @@ public class ContestantsBench {
 
         if(contestant.getContestantState() != ContestantState.SEAT_AT_THE_BENCH) {
             contestant.setContestantState(ContestantState.SEAT_AT_THE_BENCH);
-            GeneralInformationRepository.getInstance().printLineUpdate();
+            informationRepository.updateContestant();
+            informationRepository.printLineUpdate();
         }
         
         if(allPlayersAreSeated()) {
-            allPlayersSeated.signal();
+            allPlayersSeated.signalAll();
         }
         
         try {
             do {
                 playersSelected.await();
-            } while(!playerIsSelected() && !RefereeSite.getInstance().isMatchEnded());
+            } while(!playerIsSelected() && !refereeSite.isMatchEnded());
         } catch (InterruptedException ex) {
             lock.unlock();
             return;
@@ -103,41 +113,54 @@ public class ContestantsBench {
         lock.unlock();
 
     }
-    
+    @Override
     public void getContestant() {
-        Contestant contestant = (Contestant) Thread.currentThread();
+        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
         
         lock.lock();
-        try {
-            bench.remove(contestant);
-        } finally {
-            lock.unlock();
+        
+        Iterator<InterfaceContestant> it = bench.iterator();
+
+        while (it.hasNext()) {
+            InterfaceContestant temp = it.next();
+
+            if (temp.getContestantId() == contestant.getContestantId()) {
+                it.remove();
+            }
         }
+
+        lock.unlock();
     }
     
+    @Override
+    public Set<Tuple<Integer, Integer>> getBench() {
+        Set<Tuple<Integer, Integer>> temp;
 
-    public Set<Contestant> getBench() {
-        Set<Contestant> temp;
-        
         lock.lock();
-        
+
         try {
-            while(!allPlayersAreSeated()) {
+            while (!allPlayersAreSeated()) {
                 allPlayersSeated.await();
             }
         } catch (InterruptedException ex) {
+            Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
             lock.unlock();
             return null;
         }
-        
-        temp = new TreeSet<>(this.bench);
-        
+
+        temp = new HashSet<>();
+
+        for (InterfaceContestant contestant : bench) {
+            temp.add(new Tuple<>(contestant.getContestantId(), contestant.getStrength()));
+        }
+
         lock.unlock();
-        
+
         return temp;
     }
 
 
+    @Override
     public Set<Integer> getSelectedContestants() {
         lock.lock();
         try {
@@ -147,8 +170,7 @@ public class ContestantsBench {
         }
     }
     
-
-
+    @Override
     public void setSelectedContestants(Set<Integer> pickedContestants) {
         lock.lock();
         
@@ -160,44 +182,136 @@ public class ContestantsBench {
         lock.unlock();
     }
 
-
+    @Override
     public void pickYourTeam() {
         lock.lock();
         
         try {
             while(!coachWaiting)
                 waitForCoach.await();
-        } catch (InterruptedException ex) {}
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         waitForNextTrial.signal();
         
         lock.unlock();    
     }
 
-
+    @Override
     public void waitForNextTrial() {
-        Coach coach = (Coach) Thread.currentThread();
+        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
         
         lock.lock();
         
         coach.setCoachState(CoachState.WAIT_FOR_REFEREE_COMMAND);
-        GeneralInformationRepository.getInstance().printLineUpdate();
+        informationRepository.updateCoach();
+        informationRepository.printLineUpdate();
         
         coachWaiting = true;
         waitForCoach.signal();
         
         try {
             waitForNextTrial.await();
-        } catch (InterruptedException ex) {}
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         coachWaiting = false;
         
         lock.unlock();
     }
 
+    @Override
+    public void updateContestantStrength(int id, int delta) {
+        lock.lock();
 
+        for (InterfaceContestant contestant : bench) {
+            if (contestant.getContestantId() == id) {
+                contestant.setStrength(contestant.getStrength() + delta);
+                informationRepository.updateContestantStrength(contestant.getTeam(),
+                        contestant.getContestantId(), contestant.getStrength());
+                informationRepository.printLineUpdate();
+            }
+        }
+
+        lock.unlock();
+    }
+
+    @Override
+    public void interrupt() {
+        lock.lock();
+
+        while (!allPlayersAreSeated()) {
+            try {
+                allPlayersSeated.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        playersSelected.signalAll();
+
+        while (!coachWaiting) {
+            try {
+                waitForCoach.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        waitForNextTrial.signal();
+
+        lock.unlock();
+    }
+
+    @Override
+    public void waitForEveryoneToStart() {
+        lock.lock();
+
+        while (!allPlayersAreSeated()) {
+            try {
+                allPlayersSeated.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+        while (!coachWaiting) {
+            try {
+                waitForCoach.await();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ContestantsBench.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+        lock.unlock();
+    }
+
+    @Override
+    public boolean shutdown() {
+        boolean result;
+
+        lock.lock();
+
+        shutdownVotes++;
+
+        result = shutdownVotes == (1 + 2 * (1 + 5));
+
+        lock.unlock();
+
+        return result;
+    }
+
+    /**
+     * Gets the selected contestants array.
+     *
+     * @return integer array of the selected contestants for the round
+     */
     private boolean playerIsSelected() {
-        Contestant contestant = (Contestant) Thread.currentThread();
+        InterfaceContestant contestant = (Contestant) Thread.currentThread();
         boolean result;
         
         lock.lock();
@@ -209,6 +323,11 @@ public class ContestantsBench {
         return result;
     }
 
+    /**
+     * Checks if all players are seated on bench.
+     *
+     * @return true if all players seated
+     */
     private boolean allPlayersAreSeated() {
         return bench.size() == 5;
     }

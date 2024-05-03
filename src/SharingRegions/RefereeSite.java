@@ -9,9 +9,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import Entities.Referee;
-import Entities.Referee.RefereeState;
+import Interfaces.InterfaceReferee;
+import Interfaces.InterfaceReferee.RefereeState;
+import Interfaces.InterfaceRefereeSite;
 
-public class RefereeSite {
+/**
+ * This is an passive class that describes the Referee Site
+ */
+public class RefereeSite implements InterfaceRefereeSite{
     private static RefereeSite instance;
 
     private final Lock lock;
@@ -21,9 +26,17 @@ public class RefereeSite {
     private boolean isMatchEnded;
 
     private List<TrialScore> trialStatus;
+    private int shutdownVotes;
     private final List<GameScore> gameStatus;
 
-    // Create instance
+    private final GeneralInformationRepositoryStub informationRepository;
+
+    /**
+     * The method returns the RefereeSite object. The method is thread-safe and
+     * uses the implicit monitor of the class.
+     *
+     * @return referee site object to be used
+     */
     public static synchronized RefereeSite getInstance() {
         if(instance == null) {
             instance = new RefereeSite();
@@ -31,6 +44,9 @@ public class RefereeSite {
         return instance;
     }
 
+    /**
+     * Private constructor to be used in singleton
+     */
     private RefereeSite() {
         lock = new ReentrantLock();
 
@@ -40,9 +56,12 @@ public class RefereeSite {
         informReferee = lock.newCondition();
         informRefereeCounter = 0;
         isMatchEnded = false;
+
+        informationRepository = new GeneralInformationRepositoryStub();
+        shutdownVotes = 0;
     }
 
-
+    @Override
     public List<GameScore> getGamePoints() {
         List<GameScore> gamePoints;
         
@@ -55,6 +74,7 @@ public class RefereeSite {
         return gamePoints;
     }
     
+    @Override
     public void addGamePoint(GameScore score) {
         lock.lock();
         
@@ -64,7 +84,7 @@ public class RefereeSite {
         lock.unlock();
     }
 
-
+    @Override
     public List<TrialScore> getTrialPoints() {
         List<TrialScore> trialPoints;
         
@@ -77,7 +97,7 @@ public class RefereeSite {
         return trialPoints;
     }
     
-
+    @Override
     public void resetTrialPoints(){
         lock.lock();
         
@@ -86,6 +106,7 @@ public class RefereeSite {
         lock.unlock();
     }
 
+    @Override
     public void addTrialPoint(TrialScore score) {
         lock.lock();
         
@@ -94,6 +115,7 @@ public class RefereeSite {
         lock.unlock();
     }
 
+    @Override
     public int getRemainingTrials() {
         int remaining;
         
@@ -106,18 +128,7 @@ public class RefereeSite {
         return remaining;
     }
     
-
-    public int getTrialRound() {
-        lock.lock();
-        try {
-            return this.trialStatus.size() + 1;
-        } finally {
-            lock.unlock();
-        }
-    }
-    
-
-    
+    @Override
     public int getRemainingGames() {
         int remaining;
         
@@ -130,7 +141,7 @@ public class RefereeSite {
         return remaining;
     }
 
-
+    @Override
     public void informReferee() {
         lock.lock();
         
@@ -142,13 +153,15 @@ public class RefereeSite {
         lock.unlock();
     }
     
+    @Override
     public void bothTeamsReady() {
-        Referee referee = (Referee) Thread.currentThread();
+        InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
         
         lock.lock();
         try {
             referee.setRefereeState(RefereeState.TEAMS_READY);
-            GeneralInformationRepository.getInstance().printLineUpdate();
+            informationRepository.updateReferre();
+            informationRepository.printLineUpdate();
             
             if(informRefereeCounter != 2)
                 informReferee.await();
@@ -161,7 +174,7 @@ public class RefereeSite {
         lock.unlock();
     }
     
-
+    @Override
     public boolean isMatchEnded() {
         lock.lock();
         try {
@@ -171,6 +184,7 @@ public class RefereeSite {
         }
     }
     
+    @Override
     public void setIsMatchEnded(boolean isMatchEnded) {
         lock.lock();
         try {
@@ -179,51 +193,20 @@ public class RefereeSite {
             lock.unlock();
         }
     }
-    
-    public enum TrialScore {
-        DRAW(0, "D"),
-        VICTORY_TEAM_1(1, "VT1"),
-        VICTORY_TEAM_2(2, "VT2");
 
-        private final int id;
-        private final String status;
+    @Override
+    public boolean shutdown() {
+        boolean result = false;
 
-        private TrialScore(int id, String status) {
-            this.id = id;
-            this.status = status;
-        }
+        lock.lock();
 
-        public int getId() {
-            return this.id;
-        }
+        shutdownVotes++;
 
-        public String getStatus() {
-            return this.status;
-        }
-    }
+        result = shutdownVotes == (1 + 2 * (1 + 5));
 
-    public enum GameScore {
-        DRAW(0, "D"),
-        VICTORY_TEAM_1_BY_POINTS(1, "VT1PT"),
-        VICTORY_TEAM_1_BY_KNOCKOUT(2, "VT1KO"),
-        VICTORY_TEAM_2_BY_POINTS(3, "VT2PT"),
-        VICTORY_TEAM_2_BY_KNOCKOUT(4, "VT2KO");
+        lock.unlock();
 
-        private final int id;
-        private final String status;
-
-        private GameScore(int id, String status) {
-            this.id = id;
-            this.status = status;
-        }
-
-        public int getId() {
-            return this.id;
-        }
-
-        public String getStatus() {
-            return this.status;
-        }
+        return result;
     }
 
 }

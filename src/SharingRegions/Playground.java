@@ -1,6 +1,7 @@
 package SharingRegions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -9,13 +10,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import Entities.Coach;
-import Entities.Coach.CoachState;
 import Entities.Contestant;
-import Entities.Contestant.ContestantState;
 import Entities.Referee;
-import Entities.Referee.RefereeState;
+import Interfaces.InterfaceCoach;
+import Interfaces.InterfaceCoach.CoachState;
+import Interfaces.InterfaceContestant.ContestantState;
+import Interfaces.InterfaceContestant;
+import Interfaces.InterfacePlayground;
+import Interfaces.InterfaceReferee;
+import Interfaces.InterfaceReferee.RefereeState;
 
-public class Playground {
+/**
+ * General Description: This is an passive class that describes the Playground
+ */
+public class Playground implements InterfacePlayground{
     private static Playground instance;
 
     private final Lock lock;
@@ -23,12 +31,21 @@ public class Playground {
     private final Condition teamsInPosition;
     private final Condition finishedPulling;
     private final Condition resultAssert;
-    private int pullCounter;
 
+    private int pullCounter;
     private int flagPosition;
     private int lastFlagPosition;
-    private final List<Contestant>[] teams;
+    private int shutdownVotes;
 
+    private final List<InterfaceContestant>[] teams;
+    private final GeneralInformationRepositoryStub informationRepository;
+
+    /**
+     * The method returns the Playground object. This method is thread-safe and
+     * uses the implicit monitor of the class.
+     *
+     * @return playground object to be used
+     */
     public static Playground getInstance() {
         if (instance == null) {
             instance = new Playground();
@@ -49,10 +66,14 @@ public class Playground {
         this.teams = new List[2];
         this.teams[0] = new ArrayList<>();
         this.teams[1] = new ArrayList<>();
+
+        this.informationRepository = new GeneralInformationRepositoryStub();
+        this.shutdownVotes = 0; 
     }
 
+    @Override
     public void addContestant() {
-        Contestant contestant = (Contestant) Thread.currentThread();
+        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
 
         lock.lock();
 
@@ -60,8 +81,9 @@ public class Playground {
             this.teams[contestant.getTeam()-1].add(contestant);
 
             contestant.setContestantState(ContestantState.STAND_IN_POSITION);
-            GeneralInformationRepository.getInstance().setTeamPlacement();
-            GeneralInformationRepository.getInstance().printLineUpdate();
+            informationRepository.updateContestant();
+            informationRepository.setTeamPlacement();
+            informationRepository.printLineUpdate();
 
             if(isTeamInPlace(contestant.getTeam())) {
                 this.teamsInPosition.signalAll();
@@ -75,14 +97,15 @@ public class Playground {
         lock.unlock();
     }
 
-
+    @Override
     public void checkTeamPlacement() {
-        Coach coach = (Coach) Thread.currentThread();
+        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
 
         lock.lock();
 
         coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-        GeneralInformationRepository.getInstance().printLineUpdate();
+        informationRepository.updateCoach();
+        informationRepository.printLineUpdate();
 
         try {
             while(!isTeamInPlace(coach.getTeam())) {
@@ -92,17 +115,19 @@ public class Playground {
             lock.unlock();
             return;
         }
+
         lock.unlock();
     }
 
-
+    @Override
     public void watchTrial() {
-        Coach coach = (Coach) Thread.currentThread();
+        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
 
         lock.lock();
 
         coach.setCoachState(CoachState.WATCH_TRIAL);
-        GeneralInformationRepository.getInstance().printLineUpdate();
+        informationRepository.updateCoach();
+        informationRepository.printLineUpdate();
 
         try {
             this.resultAssert.await();
@@ -110,10 +135,11 @@ public class Playground {
             lock.unlock();
             return;
         }
+
         lock.unlock();
     }
 
-
+    @Override
     public void pullRope() {
         lock.lock();
         
@@ -131,10 +157,11 @@ public class Playground {
             lock.unlock();
             return;
         }
+
         lock.unlock(); 
     }
 
-
+    @Override
     public void resultAsserted() {
         lock.lock();
         try {
@@ -145,17 +172,17 @@ public class Playground {
         }
     }
     
-    
+    @Override
     public void startPulling() {
-
-        Referee referee = (Referee) Thread.currentThread();
+        InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
         
         lock.lock();
         
         this.startTrial.signalAll();
         
         referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
-        GeneralInformationRepository.getInstance().printLineUpdate();
+        informationRepository.updateReferee();
+        informationRepository.printLineUpdate();
         
         if(pullCounter != 2 * 3)   // 3 is equal to players in the playground
             try {
@@ -169,18 +196,30 @@ public class Playground {
         lock.unlock();
     }
     
-
+    @Override
     public void getContestant(){
-        Contestant contestant = (Contestant) Thread.currentThread();
+        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
         
         lock.lock();
         
-        teams[contestant.getTeam()-1].remove(contestant);
-        
+        Iterator<InterfaceContestant> it = teams[contestant.getTeam() - 1].iterator();
+
+        while (it.hasNext()) {
+            InterfaceContestant temp = it.next();
+
+            if (temp.getContestantId() == contestant.getContestantId()) {
+                it.remove();
+                break;
+            }
+        }
+
+        informationRepository.resetTeamPlacement();
+        informationRepository.printLineUpdate();
+
         lock.unlock();
     }
     
-    
+    @Override
     public int getFlagPosition() {
         lock.lock();
         try {
@@ -191,13 +230,13 @@ public class Playground {
     }
     
     
-
+    @Override
     public void setFlagPosition(int flagPosition) {
         this.lastFlagPosition = flagPosition;
         this.flagPosition = flagPosition;
     }
 
-
+    @Override
     public int getLastFlagPosition() {
         lock.lock();
         try {
@@ -207,9 +246,9 @@ public class Playground {
         }
     }
     
-
-    public List<Contestant>[] getTeams() {
-        List<Contestant>[] teams = new List[2];
+    @Override
+    public List<InterfaceContestant>[] getTeams() {
+        List<InterfaceContestant>[] teams = new List[2];
 
         lock.lock();
 
@@ -220,18 +259,51 @@ public class Playground {
 
         return teams;
     }
+
+    @Override
+    public boolean shutdown() {
+        boolean result = false;
+
+        lock.lock();
+
+        shutdownVotes++;
+
+        result = shutdownVotes == (1 + 2 * (1 + 5));
+
+        lock.unlock();
+
+        return result;
+    }
+
+    @Override
+    public void allHavePulled() {
+        lock.lock();
+        try {
+            this.finishedPulling.await();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        lock.unlock();
+    }
+
+    @Override
+    public boolean areAllContestantsReady() {
+        return (teams[0].size() + teams[1].size()) == 3 * 2;
+    }
     
 
-    
+    /**
+     * Updates the flag position accordingly with the teams joint forces
+     */
     private void flagPositionUpdate() {
         int team1 = 0;
         int team2 = 0;
 
-        for(Contestant contestant : this.teams[0]) {
+        for(InterfaceContestant contestant : this.teams[0]) {
             team1 += contestant.getStrength();
         }
 
-        for(Contestant contestant : this.teams[1]) {
+        for(InterfaceContestant contestant : this.teams[1]) {
             team2 += contestant.getStrength();
         }
 
@@ -244,6 +316,12 @@ public class Playground {
         }
     }
 
+    /**
+     * Checks if the team is in place
+     *
+     * @param teamId team id to check if the team is in place
+     * @return true if team in place and ready.
+     */
     private boolean isTeamInPlace(int teamId) {
         return this.teams[teamId-1].size() == 3;    
     }

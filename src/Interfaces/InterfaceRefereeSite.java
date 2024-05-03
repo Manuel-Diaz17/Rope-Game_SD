@@ -1,16 +1,12 @@
-package Others;
+package Interfaces;
 
-import Others.InterfaceRefereeSite.GameScore;
-import Others.InterfaceRefereeSite.TrialScore;
+import Interfaces.InterfaceRefereeSite.GameScore;
+import Interfaces.InterfaceRefereeSite.TrialScore;
 import java.util.List;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the referee site
- *
- * @author Eduardo Sousa - eduardosousa@ua.pt
- * @author Guilherme Cardoso - gjc@ua.pt
- * @version 2016-2
  */
 public interface InterfaceRefereeSite {
 
@@ -66,7 +62,7 @@ public interface InterfaceRefereeSite {
      *
      * @return true if no more matches to play. False if otherwise
      */
-    boolean hasMatchEnded();
+    boolean isMatchEnded();
 
     /**
      * Synchronisation point where the Coaches inform the Referee that they're
@@ -84,7 +80,7 @@ public interface InterfaceRefereeSite {
      *
      * @param hasMatchEnded true if match ended
      */
-    void setHasMatchEnded(boolean hasMatchEnded);
+    void setIsMatchEnded(boolean hasMatchEnded);
 
     /**
      * Checks if the game should be shut down

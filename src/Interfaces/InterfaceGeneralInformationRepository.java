@@ -1,14 +1,10 @@
-package Others;
+package Interfaces;
 
-import ServerSide.RefereeSite;
+import Interfaces.InterfaceRefereeSite.GameScore;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the general information repository.
- *
- * @author Eduardo Sousa - eduardosousa@ua.pt
- * @author Guilherme Cardoso - gjc@ua.pt
- * @version 2016-2
  */
 public interface InterfaceGeneralInformationRepository {
 
@@ -56,7 +52,7 @@ public interface InterfaceGeneralInformationRepository {
      *
      * @param score to be printed
      */
-    void printGameResult(RefereeSite.GameScore score);
+    void printGameResult(GameScore score);
 
     /**
      * Print general information repository header
