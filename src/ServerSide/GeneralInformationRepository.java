@@ -1,4 +1,4 @@
-package SharingRegions;
+package ServerSide;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,12 +7,13 @@ import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import ClientSide.Coach;
+import ClientSide.Contestant;
+import ClientSide.Referee;
+
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
-import Entities.Coach;
-import Entities.Contestant;
-import Entities.Referee;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant;

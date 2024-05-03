@@ -1,4 +1,4 @@
-package SharingRegions;
+package ServerSide;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Entities.Referee;
+import ClientSide.Referee;
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceReferee.RefereeState;
 import Interfaces.InterfaceRefereeSite;

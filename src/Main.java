@@ -1,11 +1,11 @@
 
-import Entities.Coach;
-import Entities.Contestant;
-import Entities.Referee;
-import SharingRegions.ContestantsBench;
-import SharingRegions.GeneralInformationRepository;
-import SharingRegions.Playground;
-import SharingRegions.RefereeSite;
+import ClientSide.Coach;
+import ClientSide.Contestant;
+import ClientSide.Referee;
+import ServerSide.ContestantsBench;
+import ServerSide.GeneralInformationRepository;
+import ServerSide.Playground;
+import ServerSide.RefereeSite;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {

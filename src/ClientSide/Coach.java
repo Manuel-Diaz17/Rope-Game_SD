@@ -1,8 +1,4 @@
-package Entities;
-
-import SharingRegions.ContestantsBench;
-import SharingRegions.Playground;
-import SharingRegions.RefereeSite;
+package ClientSide;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +13,9 @@ import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.Tuple;
+import ServerSide.ContestantsBench;
+import ServerSide.Playground;
+import ServerSide.RefereeSite;
 
 public class Coach extends Thread implements Comparable<InterfaceCoach>, InterfaceCoach {
 

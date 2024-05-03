@@ -1,14 +1,14 @@
-package Entities;
+package ClientSide;
 
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
-import SharingRegions.ContestantsBench;
-import SharingRegions.GeneralInformationRepository;
-import SharingRegions.Playground;
-import SharingRegions.RefereeSite;
+import ServerSide.ContestantsBench;
+import ServerSide.GeneralInformationRepository;
+import ServerSide.Playground;
+import ServerSide.RefereeSite;
 
 public class Contestant extends Thread implements Comparable<InterfaceContestant>, InterfaceContestant {
     private ContestantState state;

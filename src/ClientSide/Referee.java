@@ -1,4 +1,4 @@
-package Entities;
+package ClientSide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +9,11 @@ import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceRefereeSite.GameScore;
 import Interfaces.InterfaceRefereeSite.TrialScore;
+import ServerSide.ContestantsBench;
+import ServerSide.GeneralInformationRepository;
+import ServerSide.Playground;
+import ServerSide.RefereeSite;
 import Interfaces.InterfaceReferee;
-
-import SharingRegions.ContestantsBench;
-import SharingRegions.GeneralInformationRepository;
-import SharingRegions.Playground;
-import SharingRegions.RefereeSite;
 
 public class Referee extends Thread implements InterfaceReferee{
     private RefereeState state;     // Referee state
