@@ -67,7 +67,7 @@ public interface InterfaceContestant {
     /**
      * Enums of possible contestant states
      */
-    public enum ContestantState {
+    enum ContestantState {
         SEAT_AT_THE_BENCH(1, "STB"),
         STAND_IN_POSITION(2, "SIP"),
         DO_YOUR_BEST(3, "DYB");

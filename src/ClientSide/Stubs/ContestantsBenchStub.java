@@ -99,9 +99,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
             System.exit(1);
         }
 
-        Set<Tuple<Integer, Integer>> bench = inMessage.getBench();
-
-        return bench;
+        return inMessage.getBench();
     }
 
     @Override
@@ -149,9 +147,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
             System.exit(1);
         }
 
-        Set selectedContestants = inMessage.getSelectedContestants();
-
-        return selectedContestants;
+        return inMessage.getSelectedContestants();
     }
 
     @Override

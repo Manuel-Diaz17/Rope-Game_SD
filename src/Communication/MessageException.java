@@ -10,7 +10,7 @@ public class MessageException extends Exception
    *  Message giving rise to the exception
    */
 
-   private Message msg;
+   private final Message msg;
 
   /**
    *  Instatiation of a message

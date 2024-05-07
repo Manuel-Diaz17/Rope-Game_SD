@@ -15,7 +15,7 @@ public interface InterfaceServer {
      *
      * @param inMessage message to be decoded and forwarded to the right method
      * @return message that will be answered
-     * @throws message exception if message doesn't fit in the initialised
+     * @throws MessageException if message doesn't fit in the initialised
      * interface
      */
     Message processAndReply(Message inMessage) throws MessageException;

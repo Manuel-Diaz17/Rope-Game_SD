@@ -260,7 +260,7 @@ public class Playground implements InterfacePlayground{
 
     @Override
     public boolean shutdown() {
-        boolean result = false;
+        boolean result;
 
         lock.lock();
 

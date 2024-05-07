@@ -19,7 +19,7 @@ public class ContestantsBenchInterface implements InterfaceServer {
 
     @Override
     public Message processAndReply(Message inMessage) throws MessageException {
-        Message outMessage = null;
+        Message outMessage;
 
         switch (inMessage.getType()) {
             case CB_ADD_CONTESTANT: {
@@ -87,7 +87,7 @@ public class ContestantsBenchInterface implements InterfaceServer {
                 outMessage = new Message(OK);
                 break;
             default:
-                throw new MessageException("Method in PG not found", outMessage);
+                throw new MessageException("Method in PG not found", inMessage);
         }
 
         return outMessage;

@@ -134,9 +134,7 @@ public class RefereeSiteStub implements InterfaceRefereeSite {
 
         con.close();
 
-        List gamePoints = inMessage.getGamePoints();
-
-        return gamePoints;
+        return inMessage.getGamePoints();
     }
 
     @Override
@@ -208,9 +206,7 @@ public class RefereeSiteStub implements InterfaceRefereeSite {
 
         con.close();
 
-        List<RefereeSite.TrialScore> trialPoints = inMessage.getTrialPoints();
-
-        return trialPoints;
+        return inMessage.getTrialPoints();
 
     }
 

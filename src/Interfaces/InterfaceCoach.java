@@ -40,7 +40,7 @@ public interface InterfaceCoach {
     /**
      * Enums of possible Coach states
      */
-    public enum CoachState {
+    enum CoachState {
         WAIT_FOR_REFEREE_COMMAND(1, "WFRC"),
         ASSEMBLE_TEAM(2, "AETM"),
         WATCH_TRIAL(3, "WHTL");

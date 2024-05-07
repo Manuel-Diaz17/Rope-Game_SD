@@ -196,7 +196,7 @@ public class RefereeSite implements InterfaceRefereeSite{
 
     @Override
     public boolean shutdown() {
-        boolean result = false;
+        boolean result;
 
         lock.lock();
 

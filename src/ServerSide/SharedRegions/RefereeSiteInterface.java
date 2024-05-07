@@ -21,7 +21,7 @@ public class RefereeSiteInterface implements InterfaceServer {
 
     @Override
     public Message processAndReply(Message inMessage) throws MessageException {
-        Message outMessage = null;
+        Message outMessage;
 
         switch (inMessage.getType()) {
             case RS_ADD_GAME_POINT: {
@@ -82,7 +82,7 @@ public class RefereeSiteInterface implements InterfaceServer {
                 break;
             }
             default:
-                throw new MessageException("Method in RS not found", outMessage);
+                throw new MessageException("Method in RS not found", inMessage);
 
         }
 

@@ -41,7 +41,6 @@ public class ServiceProviderAgent extends Thread implements InterfaceCoach,
     /**
      * Initialisation of the server interface
      *
-     * @param scon connection of the main server
      * @param sconi connection accepted by the main server
      * @param servInterface server interface to be provided
      */
@@ -59,8 +58,7 @@ public class ServiceProviderAgent extends Thread implements InterfaceCoach,
 
     @Override
     public void run() {
-        Message inMessage = null,
-                outMessage = null;
+        Message inMessage, outMessage = null;
 
         Thread.currentThread().setName("SPA-" + Integer.toString(serviceProviderAgentId));
 

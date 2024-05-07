@@ -54,7 +54,7 @@ public class ServerRopeGame {
             }
         }
 
-        if (servInterface == null || scon == null) {
+        if (servInterface == null) {
             System.out.println("Server didn't start - bad argument - [CB | PG | RS | GR]");
             System.exit(1);
         }

@@ -21,7 +21,7 @@ public class GeneralInformationRepositoryInterface implements InterfaceServer {
 
     @Override
     public Message processAndReply(Message inMessage) throws MessageException {
-        Message outMessage = null;
+        Message outMessage;
 
         switch (inMessage.getType()) {
             case GIR_UPDATE_COACH: {
@@ -101,7 +101,7 @@ public class GeneralInformationRepositoryInterface implements InterfaceServer {
                 outMessage = new Message(OK);
                 break;
             default:
-                throw new MessageException("Method in IR Interface not found", outMessage);
+                throw new MessageException("Method in IR Interface not found", inMessage);
         }
 
         return outMessage;

@@ -126,7 +126,7 @@ public class ClientRopeGame {
             out.println("");
             out.println("Clients:");
             out.println("- Referee: ClientRopeGame RF");
-            out.println("- Coach: ClientRopeGame CH <int:team> <int:strategy>");
+            out.println("- Coach: ClientRopeGame CH <int:team>");
             out.println("- Contestant: ClientRopeGame CT <int:team> <int:id>");
             out.println("");
             out.println("Server:");

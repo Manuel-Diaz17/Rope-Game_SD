@@ -23,7 +23,7 @@ public interface InterfaceReferee {
     /**
      * Enums of possible Referee states
      */
-    public enum RefereeState {
+    enum RefereeState {
         START_OF_THE_MATCH(1, "SOM"),
         START_OF_A_GAME(2, "SOG"),
         TEAMS_READY(3, "TRD"),
