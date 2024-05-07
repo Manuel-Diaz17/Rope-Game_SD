@@ -9,7 +9,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ClientSide.GeneralInformationRepositoryStub;
-import ClientSide.Referee;
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceReferee.RefereeState;
 import Interfaces.InterfaceRefereeSite;

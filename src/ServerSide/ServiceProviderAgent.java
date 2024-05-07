@@ -17,10 +17,6 @@ import java.util.logging.Logger;
  * This class implements all Coach, Contestant and Referee interfaces. The
  * purpose is to serve the incoming messages and forward to the right passive
  * class implementation of the InterfaceServer.
- *
- * @author Eduardo Sousa - eduardosousa@ua.pt
- * @author Guilherme Cardoso - gjc@ua.pt
- * @version 2016-2
  */
 public class ServiceProviderAgent extends Thread implements InterfaceCoach,
         InterfaceContestant,

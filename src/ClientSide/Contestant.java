@@ -5,10 +5,6 @@ import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
-import ServerSide.ContestantsBench;
-import ServerSide.GeneralInformationRepository;
-import ServerSide.Playground;
-import ServerSide.RefereeSite;
 
 public class Contestant extends Thread implements Comparable<InterfaceContestant>, InterfaceContestant {
     private ContestantState state;

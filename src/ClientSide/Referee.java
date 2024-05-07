@@ -9,10 +9,6 @@ import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceRefereeSite.GameScore;
 import Interfaces.InterfaceRefereeSite.TrialScore;
-import ServerSide.ContestantsBench;
-import ServerSide.GeneralInformationRepository;
-import ServerSide.Playground;
-import ServerSide.RefereeSite;
 import Interfaces.InterfaceReferee;
 
 public class Referee extends Thread implements InterfaceReferee{

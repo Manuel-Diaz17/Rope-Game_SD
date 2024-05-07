@@ -12,7 +12,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ClientSide.Coach;
 import ClientSide.Contestant;
 import ClientSide.GeneralInformationRepositoryStub;
 import ClientSide.RefereeSiteStub;
