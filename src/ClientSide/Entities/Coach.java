@@ -1,4 +1,4 @@
-package ClientSide;
+package ClientSide.Entities;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,6 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import ClientSide.Stubs.ContestantsBenchStub;
+import ClientSide.Stubs.GeneralInformationRepositoryStub;
+import ClientSide.Stubs.PlaygroundStub;
+import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;

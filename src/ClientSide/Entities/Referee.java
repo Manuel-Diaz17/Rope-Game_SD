@@ -1,8 +1,12 @@
-package ClientSide;
+package ClientSide.Entities;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ClientSide.Stubs.ContestantsBenchStub;
+import ClientSide.Stubs.GeneralInformationRepositoryStub;
+import ClientSide.Stubs.PlaygroundStub;
+import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;

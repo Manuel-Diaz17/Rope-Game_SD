@@ -1,4 +1,4 @@
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import Communication.Message;
 import static Communication.Message.MessageType.OK;
@@ -8,7 +8,7 @@ import Interfaces.InterfaceContestant;
 /**
  * Interface server implementation for general information repository access
  */
-class GeneralInformationRepositoryInterface implements InterfaceServer {
+public class GeneralInformationRepositoryInterface implements InterfaceServer {
 
     private final GeneralInformationRepository ir;
 

@@ -1,4 +1,4 @@
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import Communication.Message;
 import static Communication.Message.MessageType.*;
@@ -8,7 +8,7 @@ import Interfaces.InterfaceReferee;
 /**
  * Interface server implementation for contestants bench access
  */
-class RefereeSiteInterface implements InterfaceServer {
+public class RefereeSiteInterface implements InterfaceServer {
 
     private final RefereeSite rs;
 

@@ -1,4 +1,4 @@
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import Communication.Message;
 import Communication.MessageException;
@@ -7,7 +7,7 @@ import Communication.MessageException;
  * Interface that defines the operations available passive classes that are
  * being served through messages
  */
-interface InterfaceServer {
+public interface InterfaceServer {
 
     /**
      * Process the message and reply accordingly to the operation done in the

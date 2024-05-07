@@ -1,4 +1,4 @@
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import java.util.LinkedList;
 import java.util.List;

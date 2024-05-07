@@ -1,4 +1,4 @@
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -12,9 +12,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ClientSide.Contestant;
-import ClientSide.GeneralInformationRepositoryStub;
-import ClientSide.RefereeSiteStub;
+import ClientSide.Entities.Contestant;
+import ClientSide.Stubs.GeneralInformationRepositoryStub;
+import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant;

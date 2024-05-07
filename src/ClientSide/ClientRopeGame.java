@@ -8,6 +8,14 @@ import static java.lang.System.out;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ClientSide.Entities.Coach;
+import ClientSide.Entities.Contestant;
+import ClientSide.Entities.Referee;
+import ClientSide.Stubs.ContestantsBenchStub;
+import ClientSide.Stubs.GeneralInformationRepositoryStub;
+import ClientSide.Stubs.PlaygroundStub;
+import ClientSide.Stubs.RefereeSiteStub;
+
 /**
  * This class implements the Client of RopeGame client-server architecture. It
  * also implements initialization of the active ententies.

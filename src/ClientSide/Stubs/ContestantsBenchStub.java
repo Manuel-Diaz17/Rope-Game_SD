@@ -1,4 +1,4 @@
-package ClientSide;
+package ClientSide.Stubs;
 
 import Communication.Message;
 import static Communication.Message.MessageType.COACH_STATE_CHANGE;
@@ -10,6 +10,8 @@ import Interfaces.Tuple;
 import Game.ServerConfigs;
 import static java.lang.System.out;
 import java.util.Set;
+
+import ClientSide.ClientCom;
 
 /**
  * This is an passive class that describes the ContestantsBench. This class

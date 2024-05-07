@@ -1,4 +1,4 @@
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import Communication.Message;
 import static Communication.Message.MessageType.*;
@@ -6,13 +6,14 @@ import Communication.MessageException;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;
 import Interfaces.Tuple;
+
 import java.util.List;
 import java.util.Set;
 
 /**
  * Interface server implementation for contestants bench access
  */
-class ContestantsBenchInterface implements InterfaceServer {
+public class ContestantsBenchInterface implements InterfaceServer {
 
     private static final List<ContestantsBench> benchs = ContestantsBench.getInstances();
 

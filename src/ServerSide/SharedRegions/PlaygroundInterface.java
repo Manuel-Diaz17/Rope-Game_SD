@@ -1,5 +1,5 @@
 
-package ServerSide;
+package ServerSide.SharedRegions;
 
 import Communication.Message;
 import static Communication.Message.MessageType.*;
@@ -11,7 +11,7 @@ import Interfaces.InterfaceReferee;
 /**
  * Interface server implementation for contestants bench access
  */
-class PlaygroundInterface implements InterfaceServer {
+public class PlaygroundInterface implements InterfaceServer {
 
     private final Playground pg;
 

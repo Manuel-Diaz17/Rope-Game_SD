@@ -1,17 +1,17 @@
 package ServerSide;
 
-import ClientSide.Contestant;
 import Communication.Message;
 import Communication.MessageException;
 import Interfaces.InterfaceCoach;
-import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant;
-import Interfaces.InterfaceContestant.ContestantState;
 import Interfaces.InterfaceReferee;
-import Interfaces.InterfaceReferee.RefereeState;
+import ServerSide.SharedRegions.InterfaceServer;
+
 import static java.lang.System.out;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import ClientSide.Entities.Contestant;
 
 /**
  * This class implements all Coach, Contestant and Referee interfaces. The

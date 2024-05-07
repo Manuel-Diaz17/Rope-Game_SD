@@ -1,5 +1,9 @@
-package ClientSide;
+package ClientSide.Entities;
 
+import ClientSide.Stubs.ContestantsBenchStub;
+import ClientSide.Stubs.GeneralInformationRepositoryStub;
+import ClientSide.Stubs.PlaygroundStub;
+import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;

@@ -1,13 +1,16 @@
-package ClientSide;
+package ClientSide.Stubs;
 
 import Communication.Message;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceReferee;
+import ServerSide.SharedRegions.RefereeSite;
 import Game.ServerConfigs;
-import ServerSide.RefereeSite;
+
 import static java.lang.System.out;
+
+import ClientSide.ClientCom;
 
 /**
  * This is an passive class that describes the General Information Repository.

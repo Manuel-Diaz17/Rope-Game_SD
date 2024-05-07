@@ -1,6 +1,12 @@
 package ServerSide;
 
 import Game.ServerConfigs;
+import ServerSide.SharedRegions.ContestantsBenchInterface;
+import ServerSide.SharedRegions.GeneralInformationRepositoryInterface;
+import ServerSide.SharedRegions.InterfaceServer;
+import ServerSide.SharedRegions.PlaygroundInterface;
+import ServerSide.SharedRegions.RefereeSiteInterface;
+
 import static java.lang.System.out;
 
 /**

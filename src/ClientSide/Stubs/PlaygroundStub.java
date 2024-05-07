@@ -1,4 +1,4 @@
-package ClientSide;
+package ClientSide.Stubs;
 
 import Communication.Message;
 import Interfaces.InterfaceCoach;
@@ -8,6 +8,8 @@ import Interfaces.InterfaceReferee;
 import Game.ServerConfigs;
 import static java.lang.System.out;
 import java.util.List;
+
+import ClientSide.ClientCom;
 
 /**
  * This is an passive class that describes the Playground. This class connects

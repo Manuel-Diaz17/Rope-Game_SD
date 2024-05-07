@@ -1,12 +1,12 @@
 package Game;
 
-import ClientSide.Coach;
-import ClientSide.Contestant;
-import ClientSide.Referee;
-import ServerSide.ContestantsBench;
-import ServerSide.GeneralInformationRepository;
-import ServerSide.Playground;
-import ServerSide.RefereeSite;
+import ClientSide.Entities.Coach;
+import ClientSide.Entities.Contestant;
+import ClientSide.Entities.Referee;
+import ServerSide.SharedRegions.ContestantsBench;
+import ServerSide.SharedRegions.GeneralInformationRepository;
+import ServerSide.SharedRegions.Playground;
+import ServerSide.SharedRegions.RefereeSite;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
