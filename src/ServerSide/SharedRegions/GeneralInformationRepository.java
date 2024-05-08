@@ -104,7 +104,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
 
         lock.lock();
 
-        int team = contestant.getTeam() - 1;
+        int team = contestant.getContestantTeam() - 1;
         int id = contestant.getContestantId() - 1;
 
         try {
@@ -131,7 +131,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
 
         lock.lock();
 
-        int team = coach.getTeam() - 1;
+        int team = coach.getCoachTeam() - 1;
 
         try {
             this.coaches[team] = coach.getCoachState();
@@ -177,9 +177,9 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
 
         lock.lock();
         try {
-            if (contestant.getTeam() == 1)
+            if (contestant.getContestantTeam() == 1)
                 team1Placement.add(contestant.getContestantId());
-            else if (contestant.getTeam() == 2)
+            else if (contestant.getContestantTeam() == 2)
                 team2Placement.add(contestant.getContestantId());
         } finally {
             lock.unlock();
@@ -193,9 +193,9 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
 
         lock.lock();
         try {
-            if (contestant.getTeam() == 1)
+            if (contestant.getContestantTeam() == 1)
                 team1Placement.remove(team1Placement.indexOf(contestant.getContestantId()));
-            else if (contestant.getTeam() == 2)
+            else if (contestant.getContestantTeam() == 2)
                 team2Placement.remove(team2Placement.indexOf(contestant.getContestantId()));
         } finally {
             lock.unlock();

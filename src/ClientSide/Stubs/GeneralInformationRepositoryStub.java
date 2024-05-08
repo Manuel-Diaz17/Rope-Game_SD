@@ -47,7 +47,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
 
         outMessage = new Message(Message.MessageType.GIR_UPDATE_COACH,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         con.writeObject(outMessage);
 
@@ -71,7 +71,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
 
         outMessage = new Message(Message.MessageType.GIR_UPDATE_CONTESTANT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -310,7 +310,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
 
         outMessage = new Message(Message.MessageType.GIR_RESET_TEAM_PLACEMENT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -380,7 +380,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
 
         outMessage = new Message(Message.MessageType.GIR_SET_TEAM_PLACEMENT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 

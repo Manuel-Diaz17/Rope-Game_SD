@@ -59,7 +59,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_ADD_CONTESTANT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -88,7 +88,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_GET_BENCH,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         con.writeObject(outMessage);
 
@@ -112,7 +112,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_GET_CONTESTANT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -136,7 +136,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_GET_SELECTED_CONTESTANTS,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         con.writeObject(outMessage);
 
@@ -161,7 +161,6 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
         outMessage = new Message(Message.MessageType.CB_PICK_YOUR_TEAM,
                 referee.getRefereeState());
 
-        // TODO: melhor metodo de lidar com este caso muito particular?
         outMessage.setTeam(team);
 
         con.writeObject(outMessage);
@@ -186,7 +185,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_SET_SELECTED_CONTESTANTS,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         outMessage.setSelectedContestants(selected);
 
@@ -213,7 +212,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_WAIT_FOR_NEXT_TRIAL,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         con.writeObject(outMessage);
 
@@ -237,7 +236,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         outMessage = new Message(Message.MessageType.CB_UPDATE_CONTESTANT_STRENGTH,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         outMessage.setNumbers(new int[]{id, delta});
 

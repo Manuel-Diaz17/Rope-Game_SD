@@ -76,14 +76,14 @@ public class Playground implements InterfacePlayground{
         lock.lock();
 
         try {
-            this.teams[contestant.getTeam()-1].add(contestant);
+            this.teams[contestant.getContestantTeam()-1].add(contestant);
 
             contestant.setContestantState(ContestantState.STAND_IN_POSITION);
             informationRepository.updateContestant();
             informationRepository.setTeamPlacement();
             informationRepository.printLineUpdate();
 
-            if(isTeamInPlace(contestant.getTeam())) {
+            if(isTeamInPlace(contestant.getContestantTeam())) {
                 this.teamsInPosition.signalAll();
             }
             startTrial.await();
@@ -106,7 +106,7 @@ public class Playground implements InterfacePlayground{
         informationRepository.printLineUpdate();
 
         try {
-            while(!isTeamInPlace(coach.getTeam())) {
+            while(!isTeamInPlace(coach.getCoachTeam())) {
                 this.teamsInPosition.await();
             }
         } catch (InterruptedException ex) {
@@ -200,7 +200,7 @@ public class Playground implements InterfacePlayground{
         
         lock.lock();
         
-        Iterator<InterfaceContestant> it = teams[contestant.getTeam() - 1].iterator();
+        Iterator<InterfaceContestant> it = teams[contestant.getContestantTeam() - 1].iterator();
 
         while (it.hasNext()) {
             InterfaceContestant temp = it.next();

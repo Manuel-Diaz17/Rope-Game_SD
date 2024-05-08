@@ -28,14 +28,14 @@ public interface InterfaceCoach {
      *
      * @return coach team number
      */
-    int getTeam();
+    int getCoachTeam();
 
     /**
      * Sets the current Coach team
      *
      * @param team to set
      */
-    void setTeam(int team);
+    void setCoachTeam(int team);
 
     /**
      * Enums of possible Coach states

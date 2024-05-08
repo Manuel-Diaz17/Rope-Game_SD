@@ -64,12 +64,12 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
     }
 
     @Override
-    public int getTeam() {
+    public int getCoachTeam() {
         return team;
     }
 
     @Override
-    public void setTeam(int team) {
+    public void setCoachTeam(int team) {
         this.team = team;
     }
 
@@ -173,7 +173,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
 
     @Override
     public int compareTo(InterfaceCoach coach) {
-        return getTeam() - coach.getTeam();
+        return getCoachTeam() - coach.getCoachTeam();
     }
 
 }

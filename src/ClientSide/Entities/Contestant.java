@@ -65,12 +65,12 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
         this.id = id;
     }
 
-    public int getTeam() {
+    public int getContestantTeam() {
         return team;
     }
 
     @Override
-    public void setTeam(int team) {
+    public void setContestantTeam(int team) {
         this.team = team;
     }
 

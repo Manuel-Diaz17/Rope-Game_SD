@@ -36,7 +36,7 @@ public class GeneralInformationRepositoryInterface implements InterfaceServer {
             }
             case GIR_UPDATE_CONTESTANT_STRENGTH: {
                 InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
-                ir.updateContestantStrength(contestant.getTeam(),
+                ir.updateContestantStrength(contestant.getContestantTeam(),
                         contestant.getContestantId(),
                         contestant.getStrength());
                 outMessage = new Message(OK);

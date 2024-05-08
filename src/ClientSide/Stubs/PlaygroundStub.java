@@ -46,7 +46,7 @@ public class PlaygroundStub implements InterfacePlayground {
 
         outMessage = new Message(Message.MessageType.PG_ADD_CONTESTANT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -82,7 +82,7 @@ public class PlaygroundStub implements InterfacePlayground {
 
         outMessage = new Message(Message.MessageType.PG_CHECK_TEAM_PLACEMENT,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         con.writeObject(outMessage);
 
@@ -108,7 +108,7 @@ public class PlaygroundStub implements InterfacePlayground {
 
         outMessage = new Message(Message.MessageType.PG_GET_CONTESTANT,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -195,7 +195,7 @@ public class PlaygroundStub implements InterfacePlayground {
 
         outMessage = new Message(Message.MessageType.PG_PULL_ROPE,
                 contestant.getContestantState(),
-                contestant.getTeam(),
+                contestant.getContestantTeam(),
                 contestant.getContestantId(),
                 contestant.getStrength());
 
@@ -293,7 +293,7 @@ public class PlaygroundStub implements InterfacePlayground {
 
         outMessage = new Message(Message.MessageType.PG_WATCH_TRIAL,
                 coach.getCoachState(),
-                coach.getTeam());
+                coach.getCoachTeam());
 
         con.writeObject(outMessage);
 

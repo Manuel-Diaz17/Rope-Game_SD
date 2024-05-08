@@ -24,7 +24,7 @@ public class ContestantsBenchInterface implements InterfaceServer {
         switch (inMessage.getType()) {
             case CB_ADD_CONTESTANT: {
                 InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
-                benchs.get(contestant.getTeam() - 1).addContestant();
+                benchs.get(contestant.getContestantTeam() - 1).addContestant();
                 outMessage = new Message(CONTESTANT_STATE_CHANGE);
                 outMessage.setContestantState(contestant.getContestantState());
                 outMessage.setStrength(contestant.getStrength());
@@ -32,20 +32,20 @@ public class ContestantsBenchInterface implements InterfaceServer {
             }
             case CB_GET_BENCH: {
                 InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
-                Set<Tuple<Integer, Integer>> bench = benchs.get(coach.getTeam() - 1).getBench();
+                Set<Tuple<Integer, Integer>> bench = benchs.get(coach.getCoachTeam() - 1).getBench();
                 outMessage = new Message(BENCH);
                 outMessage.setSet(bench);
                 break;
             }
             case CB_GET_CONTESTANT: {
                 InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
-                benchs.get(contestant.getTeam() - 1).getContestant();
+                benchs.get(contestant.getContestantTeam() - 1).getContestant();
                 outMessage = new Message(OK);
                 break;
             }
             case CB_GET_SELECTED_CONTESTANTS: {
                 InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
-                Set<Integer> selectedContestants = benchs.get(coach.getTeam() - 1).getSelectedContestants();
+                Set<Integer> selectedContestants = benchs.get(coach.getCoachTeam() - 1).getSelectedContestants();
                 outMessage = new Message(SELECTED_CONTESTANTS);
                 outMessage.setSelectedContestants(selectedContestants);
                 break;
@@ -57,13 +57,13 @@ public class ContestantsBenchInterface implements InterfaceServer {
             }
             case CB_SET_SELECTED_CONTESTANTS: {
                 InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
-                benchs.get(coach.getTeam() - 1).setSelectedContestants(inMessage.getSelectedContestants());
+                benchs.get(coach.getCoachTeam() - 1).setSelectedContestants(inMessage.getSelectedContestants());
                 outMessage = new Message(OK);
                 break;
             }
             case CB_WAIT_FOR_NEXT_TRIAL: {
                 InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
-                benchs.get(coach.getTeam() - 1).waitForNextTrial();
+                benchs.get(coach.getCoachTeam() - 1).waitForNextTrial();
                 outMessage = new Message(COACH_STATE_CHANGE);
                 outMessage.setCoachState(coach.getCoachState());
                 break;
@@ -71,7 +71,7 @@ public class ContestantsBenchInterface implements InterfaceServer {
             case CB_UPDATE_CONTESTANT_STRENGTH: {
                 InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
                 int numbers[] = inMessage.getNumbers(); // {id, delta}
-                benchs.get(coach.getTeam() - 1).updateContestantStrength(numbers[0], numbers[1]);
+                benchs.get(coach.getCoachTeam() - 1).updateContestantStrength(numbers[0], numbers[1]);
                 outMessage = new Message(OK);
                 break;
             }

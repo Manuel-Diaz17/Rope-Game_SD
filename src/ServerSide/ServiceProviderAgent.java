@@ -108,12 +108,12 @@ public class ServiceProviderAgent extends Thread implements InterfaceCoach,
     }
 
     @Override
-    public int getTeam() {
+    public int getCoachTeam() {
         return team;
     }
 
     @Override
-    public void setTeam(int team) {
+    public void setCoachTeam(int team) {
         this.team = team;
     }
 
@@ -146,6 +146,16 @@ public class ServiceProviderAgent extends Thread implements InterfaceCoach,
     @Override
     public void setStrength(int strength) {
         this.strength = strength;
+    }
+
+    @Override
+    public int getContestantTeam() {
+        return team;
+    }
+
+    @Override
+    public void setContestantTeam(int team) {
+        this.team = team;
     }
 
     // Referee methods

@@ -55,14 +55,14 @@ public interface InterfaceContestant {
      *
      * @return contestant team number
      */
-    int getTeam();
+    int getContestantTeam();
 
     /**
      * Sets the current Contestant team
      *
      * @param team to set
      */
-    void setTeam(int team);
+    void setContestantTeam(int team);
 
     /**
      * Enums of possible contestant states
