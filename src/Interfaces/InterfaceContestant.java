@@ -1,6 +1,5 @@
 package Interfaces;
 
-import Interfaces.InterfaceContestant.ContestantState;
 
 /**
  * Interface that defines the operations available over the objects that
@@ -41,14 +40,14 @@ public interface InterfaceContestant {
      *
      * @return contestant strength
      */
-    int getStrength();
+    int getContestantStrength();
 
     /**
      * Sets the Contestant strength
      *
      * @param strength to set
      */
-    void setStrength(int strength);
+    void setContestantStrength(int strength);
 
     /**
      * Gets the Contestant team number
@@ -67,7 +66,7 @@ public interface InterfaceContestant {
     /**
      * Enums of possible contestant states
      */
-    enum ContestantState {
+    public enum ContestantState {
         SEAT_AT_THE_BENCH(1, "STB"),
         STAND_IN_POSITION(2, "SIP"),
         DO_YOUR_BEST(3, "DYB");

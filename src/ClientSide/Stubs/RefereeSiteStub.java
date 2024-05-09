@@ -1,11 +1,11 @@
 package ClientSide.Stubs;
 
 import Communication.Message;
+import Game.ServerConfigs;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;
 import ServerSide.SharedRegions.RefereeSite;
-import Game.ServerConfigs;
 
 import static java.lang.System.out;
 import java.util.List;
@@ -134,7 +134,9 @@ public class RefereeSiteStub implements InterfaceRefereeSite {
 
         con.close();
 
-        return inMessage.getGamePoints();
+        List gamePoints = inMessage.getGamePoints();
+
+        return gamePoints;
     }
 
     @Override
@@ -206,7 +208,9 @@ public class RefereeSiteStub implements InterfaceRefereeSite {
 
         con.close();
 
-        return inMessage.getTrialPoints();
+        List<RefereeSite.TrialScore> trialPoints = inMessage.getTrialPoints();
+
+        return trialPoints;
 
     }
 

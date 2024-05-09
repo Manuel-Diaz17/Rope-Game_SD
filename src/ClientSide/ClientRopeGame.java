@@ -1,9 +1,5 @@
 package ClientSide;
 
-import Interfaces.InterfaceContestantsBench;
-import Interfaces.InterfaceGeneralInformationRepository;
-import Interfaces.InterfacePlayground;
-import Interfaces.InterfaceRefereeSite;
 import static java.lang.System.out;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +11,10 @@ import ClientSide.Stubs.ContestantsBenchStub;
 import ClientSide.Stubs.GeneralInformationRepositoryStub;
 import ClientSide.Stubs.PlaygroundStub;
 import ClientSide.Stubs.RefereeSiteStub;
+import Interfaces.InterfaceContestantsBench;
+import Interfaces.InterfaceGeneralInformationRepository;
+import Interfaces.InterfacePlayground;
+import Interfaces.InterfaceRefereeSite;
 
 /**
  * This class implements the Client of RopeGame client-server architecture. It
@@ -126,7 +126,7 @@ public class ClientRopeGame {
             out.println("");
             out.println("Clients:");
             out.println("- Referee: ClientRopeGame RF");
-            out.println("- Coach: ClientRopeGame CH <int:team>");
+            out.println("- Coach: ClientRopeGame CH <int:team> <int:strategy>");
             out.println("- Contestant: ClientRopeGame CT <int:team> <int:id>");
             out.println("");
             out.println("Server:");

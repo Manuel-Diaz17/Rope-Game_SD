@@ -1,7 +1,5 @@
 package Interfaces;
 
-import Interfaces.InterfaceRefereeSite.GameScore;
-import Interfaces.InterfaceRefereeSite.TrialScore;
 import java.util.List;
 
 /**
@@ -92,7 +90,7 @@ public interface InterfaceRefereeSite {
     /**
      * Enums that describe the trial score
      */
-    enum TrialScore {
+    public enum TrialScore {
         DRAW(0, "D"),
         VICTORY_TEAM_1(1, "VT1"),
         VICTORY_TEAM_2(2, "VT2");
@@ -115,7 +113,7 @@ public interface InterfaceRefereeSite {
     /**
      * Enums that describe the game score
      */
-    enum GameScore {
+    public enum GameScore {
         DRAW(0, "D"),
         VICTORY_TEAM_1_BY_POINTS(1, "VT1PT"),
         VICTORY_TEAM_1_BY_KNOCKOUT(2, "VT1KO"),
@@ -131,7 +129,7 @@ public interface InterfaceRefereeSite {
          * @param id of the score
          * @param status of the score
          */
-        GameScore(int id, String status) {
+        private GameScore(int id, String status) {
             this.id = id;
             this.status = status;
         }

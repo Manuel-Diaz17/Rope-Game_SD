@@ -6,7 +6,6 @@ import Interfaces.InterfaceCoach.CoachState;
  * Interface that defines the operations available over the objects that
  * represent the coach
  */
-
 public interface InterfaceCoach {
 
     /**
@@ -40,7 +39,7 @@ public interface InterfaceCoach {
     /**
      * Enums of possible Coach states
      */
-    enum CoachState {
+    public enum CoachState {
         WAIT_FOR_REFEREE_COMMAND(1, "WFRC"),
         ASSEMBLE_TEAM(2, "AETM"),
         WATCH_TRIAL(3, "WHTL");

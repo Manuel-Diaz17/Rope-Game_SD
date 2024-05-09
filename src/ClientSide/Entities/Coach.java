@@ -1,7 +1,6 @@
 package ClientSide.Entities;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,22 +17,19 @@ import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.Tuple;
 
+/**
+ * This is active class Coach which implements the InterfaceCoach
+ */
 public class Coach extends Thread implements Comparable<InterfaceCoach>, InterfaceCoach {
-
-    private CoachState state;
-    private int team;
 
     private final InterfaceContestantsBench bench; // bench interface to be used
     private final InterfaceRefereeSite refereeSite; // refereeSite interface to be used
     private final InterfacePlayground playground;  // playground interface to be used
     private final InterfaceGeneralInformationRepository informationRepository; // general Information Repository interface to be used
 
-    private Comparator<Contestant> comparator = new Comparator<Contestant>() {
-        @Override
-        public int compare(Contestant contestant1, Contestant contestant2) {
-            return contestant1.getStrength()- contestant2.getStrength();
-        }
-    };
+    // coach definition
+    private CoachState state;
+    private int team;
 
     /**
      * Creates a Coach instantiation for running in a distributed environment
@@ -42,10 +38,12 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      * @param team of the coach
      */
     public Coach(String name, int team) {
-        super(name);
+        super(name);                    // giving name to thread
 
+        // initial state
         state = CoachState.WAIT_FOR_REFEREE_COMMAND;
-        this.team = team;
+
+        this.team = team;               // team assignement
 
         bench = new ContestantsBenchStub(team);
         refereeSite = new RefereeSiteStub();
@@ -123,29 +121,21 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
         return pickedTeam;
     }
 
-
-     /**
+    /**
      * The coach decides which players are selected for next round and updates
      * selected contestants array at the bench
      */
     private void callContestants() {
-
-        // Picking team
         Set<Integer> pickedContestants = this.pickTeam(bench, refereeSite);
-
-        // Setting the selected team
         bench.setSelectedContestants(pickedContestants);
-
         playground.checkTeamPlacement();
     }
-
 
     /**
      * Informs the Referee and watches the trial
      */
     private void informReferee() {
         refereeSite.informReferee();
-
         playground.watchTrial();
     }
 
@@ -154,17 +144,14 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      * their strength
      */
     private void reviewNotes() {
-        
+        Set<Tuple<Integer, Integer>> contestants = bench.getBench();
         Set<Integer> selectedContestants = bench.getSelectedContestants();
-        Set<Tuple<Integer, Integer>> allContestants = bench.getBench();
 
-        if(allContestants != null) {
-            for (int i = 1; i <= 5; i++) {
-                if (selectedContestants.contains(i)) {
-                    bench.updateContestantStrength(i, -1);
-                } else {
-                    bench.updateContestantStrength(i, 1);
-                }
+        for (int i = 1; i <= 5; i++) {
+            if (selectedContestants.contains(i)) {
+                bench.updateContestantStrength(i, -1);
+            } else {
+                bench.updateContestantStrength(i, 1);
             }
         }
 

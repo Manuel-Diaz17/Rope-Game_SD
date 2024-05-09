@@ -38,7 +38,7 @@ public class GeneralInformationRepositoryInterface implements InterfaceServer {
                 InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
                 ir.updateContestantStrength(contestant.getContestantTeam(),
                         contestant.getContestantId(),
-                        contestant.getStrength());
+                        contestant.getContestantStrength());
                 outMessage = new Message(OK);
                 break;
             }

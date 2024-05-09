@@ -58,7 +58,8 @@ public class ServiceProviderAgent extends Thread implements InterfaceCoach,
 
     @Override
     public void run() {
-        Message inMessage, outMessage = null;
+        Message inMessage = null,
+                outMessage = null;
 
         Thread.currentThread().setName("SPA-" + Integer.toString(serviceProviderAgentId));
 
@@ -139,12 +140,12 @@ public class ServiceProviderAgent extends Thread implements InterfaceCoach,
     }
 
     @Override
-    public int getStrength() {
+    public int getContestantStrength() {
         return strength;
     }
 
     @Override
-    public void setStrength(int strength) {
+    public void setContestantStrength(int strength) {
         this.strength = strength;
     }
 

@@ -27,7 +27,7 @@ public class ContestantsBenchInterface implements InterfaceServer {
                 benchs.get(contestant.getContestantTeam() - 1).addContestant();
                 outMessage = new Message(CONTESTANT_STATE_CHANGE);
                 outMessage.setContestantState(contestant.getContestantState());
-                outMessage.setStrength(contestant.getStrength());
+                outMessage.setStrength(contestant.getContestantStrength());
                 break;
             }
             case CB_GET_BENCH: {

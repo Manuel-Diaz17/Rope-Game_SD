@@ -1,13 +1,14 @@
 package ClientSide.Stubs;
 
 import Communication.Message;
-import static Communication.Message.MessageType.COACH_STATE_CHANGE;
+import Game.ServerConfigs;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceReferee;
 import Interfaces.Tuple;
-import Game.ServerConfigs;
+
+import static Communication.Message.MessageType.COACH_STATE_CHANGE;
 import static java.lang.System.out;
 import java.util.Set;
 
@@ -61,7 +62,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 
@@ -73,7 +74,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
         }
 
         contestant.setContestantState(inMessage.getContestantState());
-        contestant.setStrength(inMessage.getStrength());
+        contestant.setContestantStrength(inMessage.getStrength());
 
         con.close();
     }
@@ -99,7 +100,9 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
             System.exit(1);
         }
 
-        return inMessage.getBench();
+        Set<Tuple<Integer, Integer>> bench = inMessage.getBench();
+
+        return bench;
     }
 
     @Override
@@ -114,7 +117,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 
@@ -147,7 +150,9 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
             System.exit(1);
         }
 
-        return inMessage.getSelectedContestants();
+        Set selectedContestants = inMessage.getSelectedContestants();
+
+        return selectedContestants;
     }
 
     @Override
@@ -161,6 +166,7 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
         outMessage = new Message(Message.MessageType.CB_PICK_YOUR_TEAM,
                 referee.getRefereeState());
 
+        // TODO: melhor metodo de lidar com este caso muito particular?
         outMessage.setTeam(team);
 
         con.writeObject(outMessage);
@@ -315,4 +321,6 @@ public class ContestantsBenchStub implements InterfaceContestantsBench {
 
         con.close();
     }
+
+
 }

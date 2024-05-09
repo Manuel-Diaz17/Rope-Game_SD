@@ -10,13 +10,13 @@ import Interfaces.InterfaceReferee;
  */
 public class RefereeSiteInterface implements InterfaceServer {
 
-    private final RefereeSite rs;
+    private final RefereeSite refereeSite;
 
     /**
      * Constructor that initiates the interface
      */
     public RefereeSiteInterface() {
-        this.rs = RefereeSite.getInstance();
+        this.refereeSite = RefereeSite.getInstance();
     }
 
     @Override
@@ -25,59 +25,59 @@ public class RefereeSiteInterface implements InterfaceServer {
 
         switch (inMessage.getType()) {
             case RS_ADD_GAME_POINT: {
-                rs.addGamePoint(inMessage.getGamePoint());
+                refereeSite.addGamePoint(inMessage.getGamePoint());
                 outMessage = new Message(OK);
                 break;
             }
             case RS_ADD_TRIAL_POINT: {
-                rs.addTrialPoint(inMessage.getTrialPoint());
+                refereeSite.addTrialPoint(inMessage.getTrialPoint());
                 outMessage = new Message(OK);
                 break;
             }
             case RS_BOTH_TEAMS_READY: {
                 InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
-                rs.bothTeamsReady();
+                refereeSite.bothTeamsReady();
                 outMessage = new Message(REFEREE_STATE_CHANGE);
                 outMessage.setRefereeState(referee.getRefereeState());
                 break;
             }
             case RS_GET_GAME_POINTS: {
                 outMessage = new Message(GAME_POINTS);
-                outMessage.setGamePoints(rs.getGamePoints());
+                outMessage.setGamePoints(refereeSite.getGamePoints());
                 break;
             }
             case RS_GET_REMAINING_GAMES: {
                 outMessage = new Message(REMAINING_GAMES);
-                outMessage.setRemainingGames(rs.getRemainingGames());
+                outMessage.setRemainingGames(refereeSite.getRemainingGames());
                 break;
             }
             case RS_GET_REMAINING_TRIALS: {
                 outMessage = new Message(REMAINING_TRIALS);
-                outMessage.setRemainingTrials(rs.getRemainingTrials());
+                outMessage.setRemainingTrials(refereeSite.getRemainingTrials());
                 break;
             }
             case RS_GET_TRIAL_POINTS: {
                 outMessage = new Message(TRIAL_POINTS);
-                outMessage.setTrialPoints(rs.getTrialPoints());
+                outMessage.setTrialPoints(refereeSite.getTrialPoints());
                 break;
             }
             case RS_HAS_MATCH_ENDED: {
                 outMessage = new Message(BOOLEAN);
-                outMessage.setHasMatchEnded(rs.isMatchEnded());
+                outMessage.setHasMatchEnded(refereeSite.isMatchEnded());
                 break;
             }
             case RS_INFORM_REFEREE: {
-                rs.informReferee();
+                refereeSite.informReferee();
                 outMessage = new Message(OK);
                 break;
             }
             case RS_RESET_TRIAL_POINTS: {
-                rs.resetTrialPoints();
+                refereeSite.resetTrialPoints();
                 outMessage = new Message(OK);
                 break;
             }
             case RS_SET_HAS_MATCH_ENDED: {
-                rs.setIsMatchEnded(inMessage.getHasMatchEnded());
+                refereeSite.setIsMatchEnded(inMessage.getHasMatchEnded());
                 outMessage = new Message(OK);
                 break;
             }
@@ -91,6 +91,6 @@ public class RefereeSiteInterface implements InterfaceServer {
 
     @Override
     public boolean goingToShutdown() {
-        return rs.shutdown();
+        return refereeSite.shutdown();
     }
 }

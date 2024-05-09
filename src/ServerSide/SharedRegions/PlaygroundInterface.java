@@ -1,4 +1,3 @@
-
 package ServerSide.SharedRegions;
 
 import Communication.Message;

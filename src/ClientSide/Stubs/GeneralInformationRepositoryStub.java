@@ -1,12 +1,12 @@
 package ClientSide.Stubs;
 
 import Communication.Message;
+import Game.ServerConfigs;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceReferee;
 import ServerSide.SharedRegions.RefereeSite;
-import Game.ServerConfigs;
 
 import static java.lang.System.out;
 
@@ -45,6 +45,8 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
 
         Message inMessage, outMessage;
 
+        // problably defining a variable coach was better?
+        // handled in GeneralRepositoryInterface in the same way
         outMessage = new Message(Message.MessageType.GIR_UPDATE_COACH,
                 coach.getCoachState(),
                 coach.getCoachTeam());
@@ -73,7 +75,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 
@@ -312,7 +314,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 
@@ -382,7 +384,7 @@ public class GeneralInformationRepositoryStub implements InterfaceGeneralInforma
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 

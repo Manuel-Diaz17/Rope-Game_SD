@@ -1,6 +1,6 @@
 package Interfaces;
 
-import Interfaces.InterfaceRefereeSite.GameScore;
+import ServerSide.SharedRegions.RefereeSite;
 
 /**
  * Interface that defines the operations available over the objects that
@@ -52,7 +52,7 @@ public interface InterfaceGeneralInformationRepository {
      *
      * @param score to be printed
      */
-    void printGameResult(GameScore score);
+    void printGameResult(RefereeSite.GameScore score);
 
     /**
      * Print general information repository header

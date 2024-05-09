@@ -17,7 +17,7 @@ import java.util.Set;
 public class Message implements Serializable {
 
     // serialization key
-    private static final long serialVersionUID = 20160412;
+    private static final long serialVersionUID = 2021L;
 
     // type of this message
     private final MessageType type;
@@ -604,6 +604,6 @@ public class Message implements Serializable {
         CB, // contestants bench methods
         PG, // playground methods
         GIR, // general repository information methods
-        RS; // refere site methods.
+        RS; // referee site methods.
     }
 }

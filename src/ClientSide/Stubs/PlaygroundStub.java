@@ -1,11 +1,12 @@
 package ClientSide.Stubs;
 
 import Communication.Message;
+import Game.ServerConfigs;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceReferee;
-import Game.ServerConfigs;
+
 import static java.lang.System.out;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class PlaygroundStub implements InterfacePlayground {
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 
@@ -110,7 +111,7 @@ public class PlaygroundStub implements InterfacePlayground {
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 
@@ -197,7 +198,7 @@ public class PlaygroundStub implements InterfacePlayground {
                 contestant.getContestantState(),
                 contestant.getContestantTeam(),
                 contestant.getContestantId(),
-                contestant.getStrength());
+                contestant.getContestantStrength());
 
         con.writeObject(outMessage);
 

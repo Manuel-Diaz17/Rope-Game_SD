@@ -1,7 +1,13 @@
 package Game;
 
+/**
+ * This class starts the Rope Game. It instantiates all the active and passive
+ * entities.
+ */
 public class Main {
+
     public static void main(String[] args) throws InterruptedException {
+
         Thread server, client;
 
         if (args.length == 1) {
@@ -21,5 +27,6 @@ public class Main {
         client.setName("ClientMainThread");
         client.start();
         client.join();
+
     }
 }

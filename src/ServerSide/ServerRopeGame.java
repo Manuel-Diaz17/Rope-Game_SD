@@ -1,13 +1,13 @@
 package ServerSide;
 
+import static java.lang.System.out;
+
 import Game.ServerConfigs;
 import ServerSide.SharedRegions.ContestantsBenchInterface;
 import ServerSide.SharedRegions.GeneralInformationRepositoryInterface;
 import ServerSide.SharedRegions.InterfaceServer;
 import ServerSide.SharedRegions.PlaygroundInterface;
 import ServerSide.SharedRegions.RefereeSiteInterface;
-
-import static java.lang.System.out;
 
 /**
  * This class implements the Server of RopeGame client-server architecture. It
