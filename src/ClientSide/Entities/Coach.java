@@ -6,10 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import ClientSide.Stubs.ContestantsBenchStub;
-import ClientSide.Stubs.GeneralInformationRepositoryStub;
-import ClientSide.Stubs.PlaygroundStub;
-import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
@@ -37,7 +33,12 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      * @param name of the coach
      * @param team of the coach
      */
-    public Coach(String name, int team) {
+    public Coach(String name, int team,
+            InterfaceContestantsBench bench,
+            InterfaceRefereeSite refereeSite,
+            InterfacePlayground playground,
+            InterfaceGeneralInformationRepository informationRepository) {
+
         super(name);                    // giving name to thread
 
         // initial state
@@ -45,10 +46,11 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
 
         this.team = team;               // team assignement
 
-        bench = new ContestantsBenchStub(team);
-        refereeSite = new RefereeSiteStub();
-        playground = new PlaygroundStub();
-        informationRepository = new GeneralInformationRepositoryStub();
+        this.bench = bench;
+        this.refereeSite = refereeSite;
+        this.playground = playground;
+        this.informationRepository = informationRepository;
+
     }
 
     @Override
