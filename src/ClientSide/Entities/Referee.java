@@ -5,10 +5,6 @@ import static Interfaces.InterfaceReferee.RefereeState.END_OF_THE_MATCH;
 import java.util.ArrayList;
 import java.util.List;
 
-import ClientSide.Stubs.ContestantsBenchStub;
-import ClientSide.Stubs.GeneralInformationRepositoryStub;
-import ClientSide.Stubs.PlaygroundStub;
-import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
@@ -26,7 +22,7 @@ public class Referee extends Thread implements InterfaceReferee {
     private final InterfaceRefereeSite refereeSite; // referee site interface to be used
     private final InterfacePlayground playground; // playground interface to be used
     private final InterfaceGeneralInformationRepository informationRepository; // general Information Repository interface to be used
-    private final List<InterfaceContestantsBench> benchs; // list of benches to be used
+    private final InterfaceContestantsBench bench; // list of benches to be used
 
     // referee definition
     private RefereeState state;
@@ -35,20 +31,27 @@ public class Referee extends Thread implements InterfaceReferee {
      * Referee initialisation
      *
      * @param name of the referee
+     * @param bench interface
+     * @param playground interface
+     * @param refereeSite interface
+     * @param informationRepository interface
      */
-    public Referee(String name) {
+    public Referee(String name,
+            InterfaceContestantsBench bench,
+            InterfacePlayground playground,
+            InterfaceRefereeSite refereeSite,
+            InterfaceGeneralInformationRepository informationRepository) {
+
         super(name);
 
         state = RefereeState.START_OF_THE_MATCH;
-        benchs = new ArrayList<>();
 
-        for (int i = 1; i <= 2; i++) {
-            benchs.add(new ContestantsBenchStub(i));
-        }
+        this.bench = bench;
 
-        playground = new PlaygroundStub();
-        refereeSite = new RefereeSiteStub();
-        informationRepository = new GeneralInformationRepositoryStub();
+        this.playground = playground;
+        this.refereeSite = refereeSite;
+        this.informationRepository = informationRepository;
+
     }
 
     @Override

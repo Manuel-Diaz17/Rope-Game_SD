@@ -9,20 +9,20 @@ import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ClientSide.Entities.Coach;
+import ClientSide.Entities.Contestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 
 /**
- *    Client side of the Rope Game (coach).
+ *    Client side of the Rope Game (contestant).
  *
  *    Implementation of a client-server model of type 2 (server replication).
  *    Communication is based on Java RMI.
  */
-public class ClientCoach {
-
+public class ClientContestant {
+    
     /**
     *  Main method.
     *
@@ -64,7 +64,7 @@ public class ClientCoach {
         InterfaceContestantsBench benchStub = null;
         InterfaceRefereeSite refsiteStub = null;
         Registry registry = null;
-        Coach [] coach = new Coach [2]; 
+        Contestant [][] contestant = new Contestant [2][5]; 
 
         try {
             registry = LocateRegistry.getRegistry(rmiRegHostName, rmiRegPortNumb);
@@ -80,26 +80,37 @@ public class ClientCoach {
             benchStub = (InterfaceContestantsBench) registry.lookup(rmiRegHostName);
             refsiteStub = (InterfaceRefereeSite) registry.lookup(rmiRegHostName);
         } catch (RemoteException | NotBoundException ex) {
-            Logger.getLogger(ClientCoach.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientContestant.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
 
-        for (int i = 0; i < 2; i++)
-            coach[i] = new Coach ("Coach_" + (i+1), i+1,
-            benchStub, refsiteStub, playgroundStub, girStub);
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 5; j++){
+                int strength = randomStrength();
+
+                contestant[i][j] = new Contestant ("Contestant" + (i+1) + ":" + j+1, i+1, j+1, strength,
+                benchStub, playgroundStub, refsiteStub, girStub);
+            }
+        }
+            
 
         /* start of the simulation */
 
-        for (int i = 0; i < 2; i++) {
-            out.println("Coach" + i + " started.");
-            coach[i].start ();
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 5; j++){
+                out.println("Contestant" + (i+1) + ":" + j+1 + " started.");
+
+                contestant[i][j].start ();
+            }
         }
 
-        for (int i = 0; i < 2; i++) {
-            try {
-                coach[i].join();
-            } catch (InterruptedException e) {}
-            out.println("The coach " + (i+1) + " has terminated.");
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 5; j++){
+                try {
+                    contestant[i][j].join();
+                } catch (InterruptedException e) {}
+                out.println("The contestant " + (i+1) + ":" + j+1 + " has terminated.");
+            }
         }
 
         girStub.shutdown();
@@ -108,5 +119,13 @@ public class ClientCoach {
         refsiteStub.shutdown();
 
     }
-}
 
+    /**
+     * Function to generate a random strength when a player is instantiated
+     *
+     * @return a strength for a player instantiation
+     */
+    private static int randomStrength() {
+        return 10 + (int) (Math.random() * (20 - 10));
+    }
+}

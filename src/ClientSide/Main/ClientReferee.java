@@ -9,20 +9,20 @@ import java.rmi.registry.Registry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ClientSide.Entities.Coach;
+import ClientSide.Entities.Referee;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 
 /**
- *    Client side of the Rope Game (coach).
+ *    Client side of the Rope Game (referee).
  *
  *    Implementation of a client-server model of type 2 (server replication).
  *    Communication is based on Java RMI.
  */
-public class ClientCoach {
-
+public class ClientReferee {
+    
     /**
     *  Main method.
     *
@@ -64,7 +64,6 @@ public class ClientCoach {
         InterfaceContestantsBench benchStub = null;
         InterfaceRefereeSite refsiteStub = null;
         Registry registry = null;
-        Coach [] coach = new Coach [2]; 
 
         try {
             registry = LocateRegistry.getRegistry(rmiRegHostName, rmiRegPortNumb);
@@ -80,27 +79,22 @@ public class ClientCoach {
             benchStub = (InterfaceContestantsBench) registry.lookup(rmiRegHostName);
             refsiteStub = (InterfaceRefereeSite) registry.lookup(rmiRegHostName);
         } catch (RemoteException | NotBoundException ex) {
-            Logger.getLogger(ClientCoach.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClientReferee.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(1);
         }
 
-        for (int i = 0; i < 2; i++)
-            coach[i] = new Coach ("Coach_" + (i+1), i+1,
-            benchStub, refsiteStub, playgroundStub, girStub);
+        Referee referee = new Referee("Referee", benchStub, playgroundStub, refsiteStub, girStub);
 
         /* start of the simulation */
 
-        for (int i = 0; i < 2; i++) {
-            out.println("Coach" + i + " started.");
-            coach[i].start ();
-        }
+        out.println("Referee started");
 
-        for (int i = 0; i < 2; i++) {
-            try {
-                coach[i].join();
-            } catch (InterruptedException e) {}
-            out.println("The coach " + (i+1) + " has terminated.");
-        }
+        referee.start ();
+
+        try {
+            referee.join();
+        } catch (InterruptedException e) {}
+        out.println("The referee has terminated.");
 
         girStub.shutdown();
         playgroundStub.shutdown();
@@ -109,4 +103,3 @@ public class ClientCoach {
 
     }
 }
-

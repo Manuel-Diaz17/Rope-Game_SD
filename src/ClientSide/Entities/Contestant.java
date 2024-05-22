@@ -1,9 +1,5 @@
 package ClientSide.Entities;
 
-import ClientSide.Stubs.ContestantsBenchStub;
-import ClientSide.Stubs.GeneralInformationRepositoryStub;
-import ClientSide.Stubs.PlaygroundStub;
-import ClientSide.Stubs.RefereeSiteStub;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
@@ -34,8 +30,17 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
      * @param team of the contestant
      * @param id of the contestant
      * @param strength of the contestant
+     * @param bench interface to be used
+     * @param playground interface to be used
+     * @param refereeSite interface to be used
+     * @param informationRepository interface to be used
      */
-    public Contestant(String name, int team, int id, int strength) {
+    public Contestant(String name, int team, int id, int strength,
+            InterfaceContestantsBench bench,
+            InterfacePlayground playground,
+            InterfaceRefereeSite refereeSite,
+            InterfaceGeneralInformationRepository informationRepository) {
+
         super(name);
 
         state = ContestantState.SEAT_AT_THE_BENCH;
@@ -44,10 +49,11 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
         this.id = id;
         this.strength = strength;
 
-        bench = new ContestantsBenchStub(team);
-        playground = new PlaygroundStub();
-        refereeSite = new RefereeSiteStub();
-        informationRepository = new GeneralInformationRepositoryStub();
+        this.bench = bench;
+        this.playground = playground;
+        this.refereeSite = refereeSite;
+        this.informationRepository = informationRepository;
+
     }
 
     @Override

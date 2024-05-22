@@ -32,6 +32,11 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      *
      * @param name of the coach
      * @param team of the coach
+     * @param strategy to be used by the coach
+     * @param bench interface to be used
+     * @param refereeSite interface to be used
+     * @param playground interface to be used
+     * @param informationRepository interface to be used
      */
     public Coach(String name, int team,
             InterfaceContestantsBench bench,
