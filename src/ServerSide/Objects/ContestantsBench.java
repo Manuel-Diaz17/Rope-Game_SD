@@ -1,4 +1,4 @@
-package ServerSide.SharedRegions;
+package ServerSide.Objects;
 
 import ClientSide.Stubs.GeneralInformationRepositoryStub;
 import ClientSide.Stubs.RefereeSiteStub;

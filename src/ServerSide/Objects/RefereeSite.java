@@ -1,4 +1,4 @@
-package ServerSide.SharedRegions;
+package ServerSide.Objects;
 
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;

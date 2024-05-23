@@ -1,4 +1,4 @@
-package ServerSide.SharedRegions;
+package ServerSide.Objects;
 
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;

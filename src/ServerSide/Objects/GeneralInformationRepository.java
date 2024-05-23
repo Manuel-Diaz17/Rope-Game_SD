@@ -1,4 +1,4 @@
-package ServerSide.SharedRegions;
+package ServerSide.Objects;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

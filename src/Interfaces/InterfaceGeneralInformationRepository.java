@@ -1,6 +1,6 @@
 package Interfaces;
 
-import ServerSide.SharedRegions.RefereeSite;
+import ServerSide.Objects.RefereeSite;
 
 /**
  * Interface that defines the operations available over the objects that

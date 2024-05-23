@@ -3,7 +3,7 @@ package Communication;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant.ContestantState;
 import Interfaces.InterfaceReferee.RefereeState;
-import ServerSide.SharedRegions.RefereeSite;
+import ServerSide.Objects.RefereeSite;
 
 import java.io.Serializable;
 import java.util.List;
