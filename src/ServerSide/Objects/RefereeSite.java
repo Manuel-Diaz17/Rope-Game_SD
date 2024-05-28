@@ -1,5 +1,6 @@
 package ServerSide.Objects;
 
+import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceReferee.RefereeState;
@@ -12,8 +13,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import ClientSide.Stubs.GeneralInformationRepositoryStub;
 
 /**
  * This is an passive class that describes the Referee Site
@@ -33,17 +32,19 @@ public class RefereeSite implements InterfaceRefereeSite {
     private int shutdownVotes;                  // count if all votes are met to shutdown
     private final List<GameScore> gameStatus;   // current game status
 
-    private final GeneralInformationRepositoryStub informationRepository;
+    private final InterfaceGeneralInformationRepository informationRepository;
+
 
     /**
      * The method returns the RefereeSite object. The method is thread-safe and
      * uses the implicit monitor of the class.
      *
+     * @param informationRepository interface to use
      * @return referee site object to be used
      */
-    public static synchronized RefereeSite getInstance() {
+    public static synchronized RefereeSite getInstance(InterfaceGeneralInformationRepository informationRepository) {
         if (instance == null) {
-            instance = new RefereeSite();
+            instance = new RefereeSite(informationRepository);
         }
 
         return instance;
@@ -52,7 +53,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     /**
      * Private constructor to be used in singleton
      */
-    private RefereeSite() {
+    private RefereeSite(InterfaceGeneralInformationRepository informationRepository) {
         lock = new ReentrantLock();
 
         trialStatus = new LinkedList<>();
@@ -61,7 +62,7 @@ public class RefereeSite implements InterfaceRefereeSite {
         informReferee = lock.newCondition();
         informRefereeCounter = 0;
         hasMatchEnded = false;
-        informationRepository = new GeneralInformationRepositoryStub();
+        this.informationRepository = informationRepository;
         shutdownVotes = 0;
     }
 

@@ -57,9 +57,9 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     /**
-     * Private constructor for the singleton
+     * Public constructor for the singleton
      */
-    private GeneralInformationRepository() {
+    public GeneralInformationRepository() {
         lock = new ReentrantLock();
 
         try {

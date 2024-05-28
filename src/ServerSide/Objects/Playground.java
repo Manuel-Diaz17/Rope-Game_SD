@@ -6,6 +6,7 @@ import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant.ContestantState;
+import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceReferee.RefereeState;
 
 import java.util.ArrayList;
@@ -16,8 +17,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import ClientSide.Stubs.GeneralInformationRepositoryStub;
 
 /**
  * General Description: This is an passive class that describes the Playground
@@ -43,7 +42,7 @@ public class Playground implements InterfacePlayground {
     private int shutdownVotes;                  // count if all votes are met to shutdown
 
     private final List<InterfaceContestant>[] teams;  // list containing the Contestant in both teams
-    private final GeneralInformationRepositoryStub informationRepository;
+    private final InterfaceGeneralInformationRepository informationRepository;
 
     /**
      * The method returns the Playground object. This method is thread-safe and
@@ -60,22 +59,29 @@ public class Playground implements InterfacePlayground {
     }
 
     /**
-     * Private constructor to be used in the singleton
-     */
-    private Playground() {
-        this.flagPosition = 0;
-        this.lastFlagPosition = 0;
-        this.lock = new ReentrantLock();
-        this.startTrial = this.lock.newCondition();
-        this.teamsInPosition = this.lock.newCondition();
-        this.finishedPulling = this.lock.newCondition();
-        this.resultAssert = this.lock.newCondition();
-        this.pullCounter = 0;
-        this.teams = new List[2];
-        this.teams[0] = new ArrayList<>();
-        this.teams[1] = new ArrayList<>();
-        this.informationRepository = new GeneralInformationRepositoryStub();
-        this.shutdownVotes = 0;
+    * Public constructor to be used in the singleton
+    *
+    * @param girStub
+    */
+    public Playground(InterfaceGeneralInformationRepository girStub) {
+        lock = new ReentrantLock();
+        startTrial = lock.newCondition();
+        teamsInPosition = lock.newCondition();
+        finishedPulling = lock.newCondition();
+        resultAssert = lock.newCondition();
+
+        flagPosition = 0;
+        lastFlagPosition = 0;
+        pullCounter = 0;
+        teams = new List[2];
+
+        for (int i = 0; i < 2; i++) {
+            teams[i] = new ArrayList<>();
+        }
+
+        informationRepository = girStub;
+
+        shutdownVotes = 0;
     }
 
     @Override

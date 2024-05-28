@@ -11,6 +11,7 @@ import Interfaces.Tuple;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant.ContestantState;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,18 +34,18 @@ public class ContestantsBench implements InterfaceContestantsBench {
 
     // conditions for waiting
     private final Lock lock;
-    private final Condition allPlayersSeated;
-    private final Condition playersSelected;
-    private final Condition waitForNextTrial;
-    private final Condition waitForCoach;
+    private final Condition[] allPlayersSeated;
+    private final Condition[] playersSelected;
+    private final Condition[] waitForNextTrial;
+    private final Condition[] waitForCoach;
 
     // structure that contains the players in the bench
-    private final Set<InterfaceContestant> bench;
+    private final List[] bench;
 
     // selected contestants to play the trial
-    private final Set<Integer> selectedContestants;
+    private final List<Integer>[] selectedContestants;
 
-    private boolean coachWaiting; // sets if the coach is waiting
+    private boolean[] coachWaiting; // sets if the coach is waiting
     private static int shutdownVotes; // counts if everyone's ready to shutdown
 
     // referee site implementation to be used
@@ -73,20 +74,36 @@ public class ContestantsBench implements InterfaceContestantsBench {
     }
 
     /**
-     * Private constructor to be used in the doubleton
+     * Public constructor to be used in the doubleton
      */
-    private ContestantsBench() {
+    public ContestantsBench(InterfaceRefereeSite refSiteInt, InterfaceGeneralInformationRepository girInt) {
         lock = new ReentrantLock();
-        allPlayersSeated = lock.newCondition();
-        playersSelected = lock.newCondition();
-        waitForNextTrial = lock.newCondition();
-        waitForCoach = lock.newCondition();
-        bench = new TreeSet<>();
-        selectedContestants = new TreeSet<>();
-        refereeSite = new RefereeSiteStub();
-        informationRepository = new GeneralInformationRepositoryStub();
+        
+        allPlayersSeated = new Condition[2];
+        playersSelected = new Condition[2];
+        waitForNextTrial = new Condition[2];
+        waitForCoach = new Condition[2];
+        coachWaiting = new boolean[2];
+        
+        bench = new List[2];
+        selectedContestants = new List[2];
+        
+        for(int i = 0; i < 2; i++) {
+            allPlayersSeated[i] = lock.newCondition();
+            playersSelected[i] = lock.newCondition();
+            waitForNextTrial[i] = lock.newCondition();
+            waitForCoach[i] = lock.newCondition();
+            coachWaiting[i] = false;
+            
+            bench[i] = new ArrayList<>();
+            selectedContestants[i] = new ArrayList<>();
+        }
+        
+        refereeSite = refSiteInt;
+        informationRepository = girInt;
+        
         shutdownVotes = 0;
-        coachWaiting = false;
+
     }
 
     @Override

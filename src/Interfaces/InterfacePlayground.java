@@ -1,12 +1,13 @@
 package Interfaces;
 
+import java.rmi.Remote;
 import java.util.List;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the playground
  */
-public interface InterfacePlayground {
+public interface InterfacePlayground extends Remote{
 
     /**
      * The method adds a contestant to the playground

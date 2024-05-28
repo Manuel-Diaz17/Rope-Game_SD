@@ -1,12 +1,13 @@
 package Interfaces;
 
+import java.rmi.Remote;
 import java.util.Set;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the contestants bench
  */
-public interface InterfaceContestantsBench {
+public interface InterfaceContestantsBench extends Remote{
 
     /**
      * The method adds a contestant to the bench

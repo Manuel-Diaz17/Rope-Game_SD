@@ -1,12 +1,14 @@
 package Interfaces;
 
+import java.rmi.Remote;
+
 import ServerSide.Objects.RefereeSite;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the general information repository.
  */
-public interface InterfaceGeneralInformationRepository {
+public interface InterfaceGeneralInformationRepository extends Remote{
 
     /**
      * Adds a Coach to General Information Repository

@@ -1,12 +1,13 @@
 package Interfaces;
 
+import java.rmi.Remote;
 import java.util.List;
 
 /**
  * Interface that defines the operations available over the objects that
  * represent the referee site
  */
-public interface InterfaceRefereeSite {
+public interface InterfaceRefereeSite extends Remote{
 
     /**
      * The method allows to set the game points for both team
