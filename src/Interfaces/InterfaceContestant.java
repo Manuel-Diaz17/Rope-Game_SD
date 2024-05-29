@@ -86,6 +86,38 @@ public interface InterfaceContestant {
         }
 
         /**
+         * Get contestant state id
+         * 
+         * @return contestant state id
+         */
+        public int getId() {
+            return this.id;
+        }
+    
+        /**
+         * Get contestant state
+         * 
+         * @return string describing contestant state
+         */
+        public String getState() {
+            return state;
+        }
+
+        /**
+         * Get contestant state by id
+         * 
+         * @param id
+         * @return contestant state
+         */
+        public static ContestantState getStateById(int id) {
+            for (ContestantState state : values())
+                if (state.id == id)
+                    return state;
+    
+            return null;
+        }
+
+        /**
          * Converts current contestant state to String
          *
          * @return string describing contestant sate

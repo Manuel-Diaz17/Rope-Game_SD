@@ -2,8 +2,12 @@ package ClientSide.Entities;
 
 import static Interfaces.InterfaceReferee.RefereeState.END_OF_THE_MATCH;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
@@ -12,6 +16,7 @@ import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceRefereeSite.GameScore;
 import Interfaces.InterfaceRefereeSite.TrialScore;
+import Interfaces.Tuple;
 
 /**
  * This is an active class implements the Referee and his interactions in the
@@ -51,7 +56,6 @@ public class Referee extends Thread implements InterfaceReferee {
         this.playground = playground;
         this.refereeSite = refereeSite;
         this.informationRepository = informationRepository;
-
     }
 
     @Override
@@ -66,39 +70,48 @@ public class Referee extends Thread implements InterfaceReferee {
 
     @Override
     public void run() {
-        informationRepository.updateReferee();
-        informationRepository.printHeader();
+        try {
+            informationRepository.updateReferee(state.getId());
+            informationRepository.printHeader();
 
-        while (state != END_OF_THE_MATCH) {
-            switch (state) {
-                case START_OF_THE_MATCH:
-                    announceNewGame();
-                    break;
-                case START_OF_A_GAME:
-                    callTrial();
-                    break;
-                case TEAMS_READY:
-                    startTrial();
-                    break;
-                case WAIT_FOR_TRIAL_CONCLUSION:
-                    assertTrialDecision();
-
-                    if (isGameEnd()) {
-                        declareGameWinner();
-                    } else {
-                        callTrial();
-                    }
-                    break;
-                case END_OF_A_GAME:
-                    if (isMatchEnd()) {
-                        declareMatchWinner();
-                    } else {
+            while (state != END_OF_THE_MATCH) {
+                switch (state) {
+                    case START_OF_THE_MATCH:
                         announceNewGame();
-                    }
-                    break;
-                case END_OF_THE_MATCH:
-                    break;
+                        break;
+                    case START_OF_A_GAME:
+                        callTrial();
+                        break;
+                    case TEAMS_READY:
+                        startTrial();
+                        break;
+                    case WAIT_FOR_TRIAL_CONCLUSION:
+                        assertTrialDecision();
+    
+                        if (isGameEnd()) {
+                            declareGameWinner();
+                        } else {
+                            callTrial();
+                        }
+                        break;
+                    case END_OF_A_GAME:
+                        if (isMatchEnd()) {
+                            declareMatchWinner();
+                        } else {
+                            announceNewGame();
+                        }
+                        break;
+                    case END_OF_THE_MATCH:
+                        break;
+                }
             }
+
+            bench.interrupt(1);
+            bench.interrupt(2);
+            informationRepository.close();
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -106,31 +119,51 @@ public class Referee extends Thread implements InterfaceReferee {
      * Announces a new game. It also sets trial points, flag, etc to original
      * positions for that a new game takes place.
      */
-    private void announceNewGame() {
+    private void announceNewGame() throws RemoteException{
         refereeSite.resetTrialPoints();
+
         playground.setFlagPosition(0);
 
         informationRepository.setFlagPosition(0);
+
         informationRepository.setTrialNumber(1);
-        informationRepository.setGameNumber(refereeSite.getGamePoints().size() + 1);
+
+        informationRepository.setGameNumber(
+                ((Supplier<Integer>) () -> {
+                    List<GameScore> gamePoints = null;
+                    try {
+                        gamePoints = refereeSite.getGamePoints();
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return gamePoints.size() + 1;
+                }).get());
+        
         informationRepository.printGameHeader();
         setRefereeState(RefereeState.START_OF_A_GAME);
-        informationRepository.updateReferee();
-        informationRepository.printLineUpdate();
+        informationRepository.updateReferee(state.getId());
     }
 
     /**
      * Wakes up both coaches, so they can select their teams. Changes the state
      * to TEAMS_READY and blocks waiting for the coaches to wake him.
      */
-    private void callTrial() {
-        informationRepository.setTrialNumber(refereeSite.getTrialPoints().size() + 1);
+    private void callTrial() throws RemoteException{
+        informationRepository.setTrialNumber(((Supplier<Integer>) () -> {
+            List<TrialScore> trialPoints = null;
+            try {
+                trialPoints = refereeSite.getTrialPoints();
+            } catch (RemoteException ex) {
+                Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return trialPoints.size();
+        }).get() + 1);
 
-        for (InterfaceContestantsBench bench : benchs) {
-            bench.pickYourTeam();
-        }
+        bench.pickYourTeam(1);
+        bench.pickYourTeam(2);
 
-        refereeSite.bothTeamsReady();
+        int bothTeamsReady = refereeSite.bothTeamsReady();
+        state = InterfaceReferee.getState(bothTeamsReady);
     }
 
     /**
@@ -138,14 +171,16 @@ public class Referee extends Thread implements InterfaceReferee {
      * WAIT_FOR_TRIAL_CONCLUSION and blocks waiting for all the players to have
      * pulled the rope.
      */
-    private void startTrial() {
-        playground.startPulling();
+    private void startTrial() throws RemoteException{
+        int startPulling = playground.startPulling();
+
+        state = InterfaceReferee.getState(startPulling);
     }
 
     /**
      * Decides the trial winner and steps the flag accordingly
      */
-    private void assertTrialDecision() {
+    private void assertTrialDecision() throws RemoteException{
         int lastFlagPosition = playground.getLastFlagPosition();
         int flagPosition = playground.getFlagPosition();
 
@@ -158,7 +193,6 @@ public class Referee extends Thread implements InterfaceReferee {
         }
 
         informationRepository.setFlagPosition(flagPosition);
-        informationRepository.printLineUpdate();
 
         playground.resultAsserted();
     }
@@ -166,7 +200,7 @@ public class Referee extends Thread implements InterfaceReferee {
     /**
      * Decides the Game winner and sets the gamePoints accordingly
      */
-    private void declareGameWinner() {
+    private void declareGameWinner() throws RemoteException{
         List<TrialScore> trialPoints = refereeSite.getTrialPoints();
         int flagPosition = playground.getFlagPosition();
 
@@ -202,20 +236,34 @@ public class Referee extends Thread implements InterfaceReferee {
         }
 
         setRefereeState(RefereeState.END_OF_A_GAME);
-        informationRepository.updateReferee();
-        informationRepository.printLineUpdate();
-        informationRepository.printGameResult(refereeSite.getGamePoints().get(refereeSite.getGamePoints().size() - 1));
+        informationRepository.updateReferee(state.getId());
+        
+        informationRepository.printGameResult(((Supplier<GameScore>) () -> {
+            List<GameScore> gamePoints = null;
+            try {
+                gamePoints = refereeSite.getGamePoints();
+            } catch (RemoteException ex) {
+                Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return gamePoints.get(gamePoints.size() - 1);
+
+        }).get());
     }
 
     /**
      * Declares the match winner and sets the game score accordingly. Wakes up
      * all other active entities and sends them home.
      */
-    private void declareMatchWinner() {
+    private void declareMatchWinner() throws RemoteException{
         int score1 = 0;
         int score2 = 0;
 
-        for (GameScore score : refereeSite.getGamePoints()) {
+        for (GameScore score
+                : ((Supplier<List<GameScore>>) () -> {
+                    List<GameScore> gamePoints = null;
+                    gamePoints = refereeSite.getGamePoints();
+                    return gamePoints;
+                }).get()) {
             if (score == GameScore.VICTORY_TEAM_1_BY_KNOCKOUT || score == GameScore.VICTORY_TEAM_1_BY_POINTS) {
                 score1++;
             } else if (score == GameScore.VICTORY_TEAM_2_BY_KNOCKOUT || score == GameScore.VICTORY_TEAM_2_BY_POINTS) {
@@ -225,7 +273,6 @@ public class Referee extends Thread implements InterfaceReferee {
 
         setRefereeState(RefereeState.END_OF_THE_MATCH);
         informationRepository.updateReferee();
-        informationRepository.printLineUpdate();
 
         if (score1 > score2) {
             informationRepository.printMatchWinner(1, score1, score2);

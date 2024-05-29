@@ -59,9 +59,41 @@ public interface InterfaceCoach {
         }
 
         /**
+         * Get coach state id
+         * 
+         * @return coach state id
+         */
+        public int getId() {
+            return this.id;
+        }
+        
+        /**
+         * Get coach state
+         * 
+         * @return string describing coach state
+         */
+        public String getState() {
+            return state;
+        }
+
+        /**
+         * Get coach state by id 
+         * 
+         * @param id
+         * @return coach state
+         */
+        public static CoachState getStateById(int id) {
+            for (CoachState st : CoachState.values())
+                if (st.getId() == id)
+                    return st;
+    
+            return null;
+        }
+
+        /**
          * Converts current Coach state to String
          *
-         * @return string describing Contestant sate
+         * @return string describing Contestant state
          */
         @Override
         public String toString() {

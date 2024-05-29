@@ -1,16 +1,22 @@
 package ClientSide.Entities;
 
+import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
+import Interfaces.InterfaceRefereeSite.TrialScore;
 import Interfaces.Tuple;
 
 /**
@@ -32,7 +38,6 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      *
      * @param name of the coach
      * @param team of the coach
-     * @param strategy to be used by the coach
      * @param bench interface to be used
      * @param refereeSite interface to be used
      * @param playground interface to be used
@@ -49,7 +54,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
         // initial state
         state = CoachState.WAIT_FOR_REFEREE_COMMAND;
 
-        this.team = team;               // team assignement
+        this.team = team;               // team assignment
 
         this.bench = bench;
         this.refereeSite = refereeSite;
@@ -80,22 +85,38 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
 
     @Override
     public void run() {
-        informationRepository.updateCoach();
-        bench.waitForNextTrial();
 
-        while (!refereeSite.isMatchEnded()) {
-            switch (state) {
-                case WAIT_FOR_REFEREE_COMMAND:
-                    callContestants();
-                    break;
-                case ASSEMBLE_TEAM:
-                    informReferee();
-                    break;
-                case WATCH_TRIAL:
-                    reviewNotes();
-                    break;
+        try {
+            informationRepository.updateCoach(team, state.getId());
+            int waitForNextTrial = bench.waitForNextTrial(team, state.getId());
+
+            while (!((BooleanSupplier) () -> {
+                boolean isMatchEnded = false;
+                try {
+                    refereeSite.isMatchEnded();
+                } catch (RemoteException ex) {
+                    Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(1);
+                }
+                return isMatchEnded;
+            }).getAsBoolean()) {
+                switch (state) {
+                    case WAIT_FOR_REFEREE_COMMAND:
+                        callContestants();
+                        break;
+                    case ASSEMBLE_TEAM:
+                        informReferee();
+                        break;
+                    case WATCH_TRIAL:
+                        reviewNotes();
+                        break;
+                }
             }
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+            System.exit(1);
         }
+        
     }
 
     /**
@@ -103,10 +124,13 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      * a random strategy
      */
 
-    public Set<Integer> pickTeam(InterfaceContestantsBench bench, InterfaceRefereeSite site) {
+    public Set<Integer> pickTeam(Set<Tuple<Integer, Integer>> contestants,
+        Set<Integer> selectedContestants,
+        List<TrialScore> trialPoints) {
+
         Set<Integer> pickedTeam = new HashSet<>();
 
-        List<Tuple<Integer, Integer>> contestants = new LinkedList<>(bench.getBench()); // List of Contestants
+        List<Tuple<Integer, Integer>> contestantsList = new LinkedList<>(contestants); // List of Contestants
 
         // choose strategy:
 
@@ -115,7 +139,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
 
 
         // Random by shuffling the list of contestants
-        Collections.shuffle(contestants);
+        Collections.shuffle(contestantsList);
 
         for (Tuple<Integer, Integer> cont : contestants) {
             if (pickedTeam.size() == 3) {
@@ -132,37 +156,72 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
      * The coach decides which players are selected for next round and updates
      * selected contestants array at the bench
      */
-    private void callContestants() {
-        Set<Integer> pickedContestants = this.pickTeam(bench, refereeSite);
-        bench.setSelectedContestants(pickedContestants);
-        playground.checkTeamPlacement();
+    private void callContestants() throws RemoteException{
+        Set<Integer> pickedContestants = this.pickTeam(
+                ((Supplier<Set<Tuple<Integer, Integer>>>) () -> {
+                    Set<Tuple<Integer, Integer>> getBenches = null;
+                    try {
+                        getBenches = bench.getBench(team);
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return getBenches;
+
+                }).get(),
+                ((Supplier<Set<Integer>>) () -> {
+                    Set<Integer> selectedContestants = null;
+                    try {
+                        selectedContestants = bench.getSelectedContestants(team);
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return selectedContestants;
+
+                }).get(),
+                ((Supplier<List<TrialScore>>) () -> {
+                    List<TrialScore> trialPoints = null;
+                    try {
+                        trialPoints = refereeSite.getTrialPoints();
+                    } catch (RemoteException ex) {
+                        Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return trialPoints;
+
+                }).get());
+
+        bench.setSelectedContestants(team, pickedContestants);
+
+        int checkTeamPlacement = playground.checkTeamPlacement(team);
+        state = CoachState.getStateById(checkTeamPlacement);
     }
 
     /**
      * Informs the Referee and watches the trial
      */
-    private void informReferee() {
+    private void informReferee() throws RemoteException{
         refereeSite.informReferee();
-        playground.watchTrial();
+        int watchTrial = playground.watchTrial(team);
+        state = CoachState.getStateById(watchTrial);
     }
 
     /**
      * The coach updates his players which have played and game and updates
      * their strength
      */
-    private void reviewNotes() {
-        Set<Tuple<Integer, Integer>> contestants = bench.getBench();
-        Set<Integer> selectedContestants = bench.getSelectedContestants();
+    private void reviewNotes() throws RemoteException{
+        Set<Tuple<Integer, Integer>> contestants = bench.getBench(team);
+        Set<Integer> selectedContestants = bench.getSelectedContestants(team);
 
         for (int i = 1; i <= 5; i++) {
             if (selectedContestants.contains(i)) {
-                bench.updateContestantStrength(i, -1);
+                bench.updateContestantStrength(i, team, -1);
             } else {
-                bench.updateContestantStrength(i, 1);
+                bench.updateContestantStrength(i, team, 1);
             }
         }
 
-        bench.waitForNextTrial();
+        int waitForNextTrial = bench.waitForNextTrial(team, state.getId());
+        state = CoachState.getStateById(waitForNextTrial);
     }
 
     @Override

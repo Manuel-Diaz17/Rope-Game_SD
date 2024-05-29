@@ -1,10 +1,13 @@
 package ClientSide.Entities;
 
+import java.rmi.RemoteException;
+
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
+import Interfaces.Tuple;
 
 /**
  * This is active class Contestant which implements the InterfaceContestant
@@ -98,50 +101,56 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
 
     @Override
     public void run() {
-        informationRepository.updateContestant();
-        bench.addContestant();
+        try {
+            informationRepository.updateContestant(id, team, state.getId(), strength);
+            Tuple<Integer, Integer> addContestant = bench.addContestant(id, team, state.getId(), strength);
 
-        while (!refereeSite.isMatchEnded()) {
-            switch (state) {
-                case SEAT_AT_THE_BENCH:
-                    followCoachAdvice();
-                    break;
-                case STAND_IN_POSITION:
-                    getReady();
-                    break;
-                case DO_YOUR_BEST:
-                    pullTheRope();
-                    seatDown();
-                    break;
+            while (!refereeSite.isMatchEnded()) {
+                switch (state) {
+                    case SEAT_AT_THE_BENCH:
+                        followCoachAdvice();
+                        break;
+                    case STAND_IN_POSITION:
+                        getReady();
+                        break;
+                    case DO_YOUR_BEST:
+                        pullTheRope();
+                        seatDown();
+                        break;
+                }
             }
+        } catch (RemoteException ex) {
+            ex.printStackTrace();
+            System.exit(1);
         }
+    }
     }
 
     /**
      * Contestant checks if is selected to the game. If so, goes to the
      * playground
      */
-    private void followCoachAdvice() {
-        bench.getContestant();
+    private void followCoachAdvice() throws RemoteException{
+        bench.getContestant(id, team);
 
         if (!refereeSite.isMatchEnded()) {
-            playground.addContestant();
+            int addContestant = playground.addContestant(id, team, state.getId(), strength);
+            state = ContestantState.getStateById(addContestant);
         }
     }
 
     /**
      * Contestant gets ready. Changes the Contestant state to DO_YOUR_BEST
      */
-    private void getReady() {
+    private void getReady() throws RemoteException{
         setContestantState(ContestantState.DO_YOUR_BEST);
-        informationRepository.updateContestant();
-        informationRepository.printLineUpdate();
+        informationRepository.updateContestant(id, team, state.getId(), strength);
     }
 
     /**
      * Contestant pulls the rope
      */
-    private void pullTheRope() {
+    private void pullTheRope()throws RemoteException{
         playground.pullRope();
     }
 
@@ -149,9 +158,12 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
      * If contestant was playing moves to his bench and changes his state to
      * SEAT_AT_THE_BENCH
      */
-    private void seatDown() {
-        playground.getContestant();
-        bench.addContestant();
+    private void seatDown() throws RemoteException{
+        playground.getContestant(id, team);
+        Tuple<Integer, Integer> addContestant = bench.addContestant(id, team, state.getId(), strength);
+
+        state = ContestantState.getStateById(addContestant.getLeft());
+        strength = addContestant.getRight();
     }
 
     @Override

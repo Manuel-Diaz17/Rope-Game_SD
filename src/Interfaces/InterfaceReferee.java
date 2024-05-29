@@ -21,6 +21,23 @@ public interface InterfaceReferee {
     void setRefereeState(RefereeState state);
 
     /**
+     * Get referee state by id
+     * 
+     * @param id
+     * @return referee state
+     */
+    static RefereeState getState(int id) {
+
+        for (RefereeState st : RefereeState.values()) {
+            if (st.getId() == id) {
+                return st;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Enums of possible Referee states
      */
     public enum RefereeState {
@@ -43,6 +60,28 @@ public interface InterfaceReferee {
         RefereeState(int id, String state) {
             this.id = id;
             this.state = state;
+        }
+
+        /**
+         * Get referee state id
+         * 
+         * @return id
+         */
+        public int getId() {
+            return this.id;
+        }
+        
+        /**
+         * 
+         * @param id
+         * @return referee state
+         */
+        public static RefereeState getStateById(int id) {
+            for(RefereeState state : values())
+                if(state.getId() == id)
+                    return state;
+            
+            return null;
         }
 
         /**
