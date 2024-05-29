@@ -1,7 +1,6 @@
 package ServerSide.Objects;
 
 import Interfaces.InterfaceGeneralInformationRepository;
-import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceReferee.RefereeState;
 
@@ -147,13 +146,11 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public void bothTeamsReady() {
-        InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
+    public int bothTeamsReady() {
 
         lock.lock();
+
         try {
-            referee.setRefereeState(RefereeState.TEAMS_READY);
-            informationRepository.updateReferee();
             informationRepository.printLineUpdate();
 
             if (informRefereeCounter != 2) {
@@ -166,6 +163,8 @@ public class RefereeSite implements InterfaceRefereeSite {
         informRefereeCounter = 0;
 
         lock.unlock();
+
+        return RefereeState.TEAMS_READY.getId();
     }
 
     @Override

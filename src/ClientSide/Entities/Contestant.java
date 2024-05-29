@@ -124,7 +124,7 @@ public class Contestant extends Thread implements Comparable<InterfaceContestant
             System.exit(1);
         }
     }
-    }
+    
 
     /**
      * Contestant checks if is selected to the game. If so, goes to the

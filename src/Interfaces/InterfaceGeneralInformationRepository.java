@@ -12,13 +12,20 @@ public interface InterfaceGeneralInformationRepository extends Remote{
 
     /**
      * Adds a Coach to General Information Repository
+     * 
+     * @param team
+     * @param status
      */
-    void updateCoach();
+    void updateCoach(int team, int status);
 
     /**
      * Adds a Referee to General Information Repository
+     * @param id
+     * @param team
+     * @param status
+     * @param strenght
      */
-    void updateContestant();
+    void updateContestant(int id, int team, int status, int strength);
 
     /**
      * Updates the stored meta data about the strength of a contestant
@@ -31,8 +38,10 @@ public interface InterfaceGeneralInformationRepository extends Remote{
 
     /**
      * Adds a Referee to General Information Repository
+     * 
+     * @param status
      */
-    void updateReferee();
+    void updateReferee(int status);
 
     /**
      * Prints an line with updated information about game state
@@ -82,8 +91,11 @@ public interface InterfaceGeneralInformationRepository extends Remote{
 
     /**
      * Resets team placement
+     * 
+     * @param id
+     * @param team
      */
-    void resetTeamPlacement();
+    void resetTeamPlacement(int id, int team);
 
     /**
      * Sets flag position
@@ -101,8 +113,11 @@ public interface InterfaceGeneralInformationRepository extends Remote{
 
     /**
      * Sets a team placement
+     * 
+     * @param id
+     * @param team
      */
-    void setTeamPlacement();
+    void setTeamPlacement(int id, int team);
 
     /**
      * Sets a trial score score

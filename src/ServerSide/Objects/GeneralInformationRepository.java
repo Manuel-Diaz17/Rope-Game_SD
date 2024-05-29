@@ -9,10 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceGeneralInformationRepository;
-import Interfaces.InterfaceReferee;
 import Interfaces.Tuple;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant.ContestantState;
@@ -89,32 +87,30 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void updateReferee() {
-        InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
+    public void updateReferee(int status) {
 
         lock.lock();
 
-        refereeState = referee.getRefereeState();
+        refereeState = RefereeState.getStateById(status);
 
         lock.unlock();
     }
 
     @Override
-    public void updateContestant() {
-        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
+    public void updateContestant(int id, int team, int status, int strength) {
 
         lock.lock();
 
-        int team = contestant.getContestantTeam() - 1;
-        int id = contestant.getContestantId() - 1;
-
-        this.teamsState.get(team)[id] = new Tuple<>(contestant.getContestantState(), contestant.getContestantStrength());
+        this.teamsState.get(team-1)[id-1] = new Tuple<>(
+                ContestantState.getStateById(status), 
+                strength);
 
         lock.unlock();
     }
 
     @Override
     public void updateContestantStrength(int team, int id, int strength) {
+
         lock.lock();
 
         ContestantState state = teamsState.get(team - 1)[id - 1].getLeft();
@@ -125,14 +121,11 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void updateCoach() {
-        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
+    public void updateCoach(int team, int status) {
 
         lock.lock();
 
-        int team = coach.getCoachTeam() - 1;
-
-        this.coachesState[team] = coach.getCoachState();
+        this.coachesState[team-1] = CoachState.getStateById(status);
 
         lock.unlock();
     }
@@ -165,17 +158,16 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void setTeamPlacement() {
-        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
+    public void setTeamPlacement(int id, int team) {
 
         lock.lock();
 
-        switch (contestant.getContestantTeam()) {
+        switch (team) {
             case 1:
-                team1Placement.add(contestant.getContestantId());
+                team1Placement.add(id);
                 break;
             case 2:
-                team2Placement.add(contestant.getContestantId());
+                team2Placement.add(id);
                 break;
             default:
                 System.out.println("Error: team number");
@@ -186,17 +178,17 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void resetTeamPlacement() {
+    public void resetTeamPlacement(int id, int team) {
         InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
 
         lock.lock();
 
-        switch (contestant.getContestantTeam()) {
+        switch (team) {
             case 1:
-                team1Placement.remove(team1Placement.indexOf(contestant.getContestantId()));
+                team1Placement.remove(team1Placement.indexOf(id));
                 break;
             case 2:
-                team2Placement.remove(team2Placement.indexOf(contestant.getContestantId()));
+                team2Placement.remove(team2Placement.indexOf(id));
                 break;
             default:
                 System.out.println("Error: team number");

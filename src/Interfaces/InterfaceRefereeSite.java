@@ -26,7 +26,7 @@ public interface InterfaceRefereeSite extends Remote{
     /**
      * Synchronization point where the Referee waits for both teams to be ready
      */
-    void bothTeamsReady();
+    int bothTeamsReady();
 
     /**
      * The method returns the game points in the form of an array

@@ -3,7 +3,6 @@ package ClientSide.Entities;
 import static Interfaces.InterfaceReferee.RefereeState.END_OF_THE_MATCH;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -16,7 +15,6 @@ import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceRefereeSite.GameScore;
 import Interfaces.InterfaceRefereeSite.TrialScore;
-import Interfaces.Tuple;
 
 /**
  * This is an active class implements the Referee and his interactions in the
@@ -131,11 +129,7 @@ public class Referee extends Thread implements InterfaceReferee {
         informationRepository.setGameNumber(
                 ((Supplier<Integer>) () -> {
                     List<GameScore> gamePoints = null;
-                    try {
-                        gamePoints = refereeSite.getGamePoints();
-                    } catch (RemoteException ex) {
-                        Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    gamePoints = refereeSite.getGamePoints();
                     return gamePoints.size() + 1;
                 }).get());
         
@@ -151,11 +145,7 @@ public class Referee extends Thread implements InterfaceReferee {
     private void callTrial() throws RemoteException{
         informationRepository.setTrialNumber(((Supplier<Integer>) () -> {
             List<TrialScore> trialPoints = null;
-            try {
-                trialPoints = refereeSite.getTrialPoints();
-            } catch (RemoteException ex) {
-                Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            trialPoints = refereeSite.getTrialPoints();
             return trialPoints.size();
         }).get() + 1);
 
@@ -240,11 +230,7 @@ public class Referee extends Thread implements InterfaceReferee {
         
         informationRepository.printGameResult(((Supplier<GameScore>) () -> {
             List<GameScore> gamePoints = null;
-            try {
-                gamePoints = refereeSite.getGamePoints();
-            } catch (RemoteException ex) {
-                Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            gamePoints = refereeSite.getGamePoints();
             return gamePoints.get(gamePoints.size() - 1);
 
         }).get());
@@ -272,7 +258,7 @@ public class Referee extends Thread implements InterfaceReferee {
         }
 
         setRefereeState(RefereeState.END_OF_THE_MATCH);
-        informationRepository.updateReferee();
+        informationRepository.updateReferee(state.getId());
 
         if (score1 > score2) {
             informationRepository.printMatchWinner(1, score1, score2);
@@ -290,10 +276,25 @@ public class Referee extends Thread implements InterfaceReferee {
      *
      * @return true if game has ended false if more games to play
      */
-    private boolean isGameEnd() {
-        if (Math.abs(playground.getFlagPosition()) >= 4) {
+    private boolean isGameEnd() throws RemoteException {
+
+        if (Math.abs(((Supplier<Integer>) () -> {
+            int flagPosition = (Integer) null;
+            try {
+                flagPosition = playground.getFlagPosition();
+            } catch (RemoteException ex) {
+                Logger.getLogger(Referee.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return flagPosition;
+
+        }).get()) >= 4) {
             return true;
-        } else if (refereeSite.getRemainingTrials() == 0) {
+        } else if (((Supplier<Integer>) () -> {
+            int remainingTrials = (Integer) null;
+            remainingTrials = refereeSite.getRemainingTrials();
+            return remainingTrials;
+
+        }).get() == 0) {
             return true;
         }
 
@@ -305,7 +306,7 @@ public class Referee extends Thread implements InterfaceReferee {
      *
      * @return true if match as ended
      */
-    private boolean isMatchEnd() {
+    private boolean isMatchEnd() throws RemoteException {
         List<GameScore> gamePoints = refereeSite.getGamePoints();
 
         int team1 = 0;
@@ -323,7 +324,12 @@ public class Referee extends Thread implements InterfaceReferee {
 
         return team1 == (Math.floor(3 / 2) + 1)
                 || team2 == (Math.floor(3 / 2) + 1)
-                || refereeSite.getRemainingGames() == 0;
+                || ((Supplier<Integer>) () -> {
+                    int remainingTrials = (Integer) null;
+                    remainingTrials = refereeSite.getRemainingTrials();
+                    return remainingTrials;
+
+                }).get() == 0;
     }
 
 }

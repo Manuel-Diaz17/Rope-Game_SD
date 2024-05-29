@@ -1,14 +1,13 @@
 package ServerSide.Objects;
 
-import Interfaces.InterfaceCoach;
-import Interfaces.InterfaceContestant;
 import Interfaces.InterfacePlayground;
-import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceCoach.CoachState;
 import Interfaces.InterfaceContestant.ContestantState;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceReferee.RefereeState;
+import Interfaces.Triple;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,16 +19,12 @@ import java.util.logging.Logger;
 
 /**
  * General Description: This is an passive class that describes the Playground
- *
- * @author Eduardo Sousa - eduardosousa@ua.pt
- * @author Guilherme Cardoso - gjc@ua.pt
- * @version 2016-2
  */
 public class Playground implements InterfacePlayground {
 
     private static Playground instance;         // singleton
 
-    // locking and waiting condtions
+    // locking and waiting conditions
     private final Lock lock;
     private final Condition startTrial;         // condition for waiting the trial start
     private final Condition teamsInPosition;    // condition for waiting to the teams to be in position
@@ -41,22 +36,8 @@ public class Playground implements InterfacePlayground {
     private int lastFlagPosition;               // last flag position
     private int shutdownVotes;                  // count if all votes are met to shutdown
 
-    private final List<InterfaceContestant>[] teams;  // list containing the Contestant in both teams
+    private final List<Triple<Integer, ContestantState, Integer>>[] teams;  // list containing the Contestant in both teams
     private final InterfaceGeneralInformationRepository informationRepository;
-
-    /**
-     * The method returns the Playground object. This method is thread-safe and
-     * uses the implicit monitor of the class.
-     *
-     * @return playground object to be used
-     */
-    public static synchronized Playground getInstance() {
-        if (instance == null) {
-            instance = new Playground();
-        }
-
-        return instance;
-    }
 
     /**
     * Public constructor to be used in the singleton
@@ -85,77 +66,78 @@ public class Playground implements InterfacePlayground {
     }
 
     @Override
-    public void addContestant() {
-        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
+    public int addContestant(int id, int team, int state, int strength) throws RemoteException{
 
         lock.lock();
 
         try {
-            this.teams[contestant.getContestantTeam() - 1].add(contestant);
+            teams[team - 1].add(new Triple<>(id, ContestantState.STAND_IN_POSITION, strength));
 
-            contestant.setContestantState(ContestantState.STAND_IN_POSITION);
-            informationRepository.updateContestant();
-            informationRepository.setTeamPlacement();
+            informationRepository.updateContestant(id, team, ContestantState.STAND_IN_POSITION.getId(), strength);
+            informationRepository.setTeamPlacement(id, team);
             informationRepository.printLineUpdate();
 
-            if (isTeamInPlace(contestant.getContestantTeam())) {
-                this.teamsInPosition.signalAll();
+            if (isTeamInPlace(team)) {
+                teamsInPosition.signalAll();
             }
 
             startTrial.await();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
+            lock.unlock();
+            return (Integer) null;
         }
 
         lock.unlock();
+
+        return ContestantState.STAND_IN_POSITION.getId();
     }
 
     @Override
-    public void checkTeamPlacement() {
-        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
+    public int checkTeamPlacement(int team) throws RemoteException{
 
         lock.lock();
 
-        coach.setCoachState(CoachState.ASSEMBLE_TEAM);
-        informationRepository.updateCoach();
+        informationRepository.updateCoach(team, CoachState.ASSEMBLE_TEAM.getId());
         informationRepository.printLineUpdate();
 
         try {
-            while (!isTeamInPlace(coach.getCoachTeam())) {
-                this.teamsInPosition.await();
+            while (!isTeamInPlace(team)) {
+                teamsInPosition.await();
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
             lock.unlock();
-            return;
+            return (Integer) null;
         }
 
         lock.unlock();
+
+        return CoachState.ASSEMBLE_TEAM.getId();
     }
 
     @Override
-    public void watchTrial() {
-        InterfaceCoach coach = (InterfaceCoach) Thread.currentThread();
+    public int watchTrial(int team) throws RemoteException{
 
         lock.lock();
 
-        coach.setCoachState(CoachState.WATCH_TRIAL);
-        informationRepository.updateCoach();
+        informationRepository.updateCoach(team, CoachState.WATCH_TRIAL.getId());
         informationRepository.printLineUpdate();
 
         try {
-            this.resultAssert.await();
+            resultAssert.await();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
             lock.unlock();
-            return;
+            return (Integer) null;
         }
 
         lock.unlock();
+
+        return CoachState.WATCH_TRIAL.getId();
     }
 
     @Override
-    public void pullRope() {
+    public void pullRope() throws RemoteException{
+
         lock.lock();
 
         try {
@@ -172,7 +154,6 @@ public class Playground implements InterfacePlayground {
 
             this.resultAssert.await();
         } catch (InterruptedException ex) {
-            Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
             lock.unlock();
             return;
         }
@@ -181,7 +162,7 @@ public class Playground implements InterfacePlayground {
     }
 
     @Override
-    public void resultAsserted() {
+    public void resultAsserted() throws RemoteException{
         lock.lock();
 
         this.pullCounter = 0;
@@ -192,55 +173,53 @@ public class Playground implements InterfacePlayground {
     }
 
     @Override
-    public void startPulling() {
-        InterfaceReferee referee = (InterfaceReferee) Thread.currentThread();
+    public int startPulling() throws RemoteException{
 
         lock.lock();
 
-        this.startTrial.signalAll();
+        startTrial.signalAll();
 
-        referee.setRefereeState(RefereeState.WAIT_FOR_TRIAL_CONCLUSION);
-        informationRepository.updateReferee();
+        informationRepository.updateReferee(RefereeState.WAIT_FOR_TRIAL_CONCLUSION.getId());
         informationRepository.printLineUpdate();
 
         if (pullCounter != 2 * 3) {
             try {
                 finishedPulling.await();
             } catch (InterruptedException ex) {
-                Logger.getLogger(Playground.class.getName()).log(Level.SEVERE, null, ex);
                 lock.unlock();
-                return;
+                return (Integer) null;
             }
         }
 
         lock.unlock();
+
+        return RefereeState.WAIT_FOR_TRIAL_CONCLUSION.getId();
     }
 
     @Override
-    public void getContestant() {
-        InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
+    public void getContestant(int id, int team) throws RemoteException{
 
         lock.lock();
 
-        Iterator<InterfaceContestant> it = teams[contestant.getContestantTeam() - 1].iterator();
+        Iterator<Triple<Integer, ContestantState, Integer>> it = teams[team - 1].iterator();
 
         while (it.hasNext()) {
-            InterfaceContestant temp = it.next();
+            Triple<Integer, ContestantState, Integer> temp = it.next();
 
-            if (temp.getContestantId() == contestant.getContestantId()) {
+            if (temp.getFirst() == id) {
                 it.remove();
                 break;
             }
         }
 
-        informationRepository.resetTeamPlacement();
+        informationRepository.resetTeamPlacement(id, team);
         informationRepository.printLineUpdate();
 
         lock.unlock();
     }
 
     @Override
-    public int getFlagPosition() {
+    public int getFlagPosition() throws RemoteException{
         int result;
 
         lock.lock();
@@ -253,7 +232,7 @@ public class Playground implements InterfacePlayground {
     }
 
     @Override
-    public int getLastFlagPosition() {
+    public int getLastFlagPosition() throws RemoteException{
         int result;
 
         lock.lock();
@@ -266,9 +245,14 @@ public class Playground implements InterfacePlayground {
     }
 
     @Override
-    public void setFlagPosition(int flagPosition) {
+    public void setFlagPosition(int flagPosition) throws RemoteException{
+
+        lock .lock();
+
         this.lastFlagPosition = flagPosition;
         this.flagPosition = flagPosition;
+
+        lock.unlock();
     }
 
     @Override
@@ -287,22 +271,9 @@ public class Playground implements InterfacePlayground {
         return (teams[0].size() + teams[1].size()) == 3 * 2;
     }
 
-    @Override
-    public List<InterfaceContestant>[] getTeams() {
-        List<InterfaceContestant>[] teamslist = new List[2];
-
-        lock.lock();
-
-        teamslist[0] = new ArrayList<>(this.teams[0]);
-        teamslist[1] = new ArrayList<>(this.teams[1]);
-
-        lock.unlock();
-
-        return teamslist;
-    }
 
     @Override
-    public boolean shutdown() {
+    public boolean shutdown() throws RemoteException{
         boolean result;
 
         lock.lock();
@@ -323,12 +294,13 @@ public class Playground implements InterfacePlayground {
         int team1 = 0;
         int team2 = 0;
 
-        for (InterfaceContestant contestant : this.teams[0]) {
-            team1 += contestant.getContestantStrength();
+        // id, state, strength
+        for (Triple<Integer, ContestantState, Integer> contestant : this.teams[0]) {
+            team1 += contestant.getThird();
         }
 
-        for (InterfaceContestant contestant : this.teams[1]) {
-            team2 += contestant.getContestantStrength();
+        for (Triple<Integer, ContestantState, Integer> contestant : this.teams[1]) {
+            team2 += contestant.getThird();
         }
 
         lastFlagPosition = flagPosition;

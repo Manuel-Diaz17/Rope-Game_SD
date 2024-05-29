@@ -92,12 +92,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
 
             while (!((BooleanSupplier) () -> {
                 boolean isMatchEnded = false;
-                try {
-                    refereeSite.isMatchEnded();
-                } catch (RemoteException ex) {
-                    Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
-                    System.exit(1);
-                }
+                refereeSite.isMatchEnded();
                 return isMatchEnded;
             }).getAsBoolean()) {
                 switch (state) {
@@ -180,11 +175,7 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
                 }).get(),
                 ((Supplier<List<TrialScore>>) () -> {
                     List<TrialScore> trialPoints = null;
-                    try {
-                        trialPoints = refereeSite.getTrialPoints();
-                    } catch (RemoteException ex) {
-                        Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    trialPoints = refereeSite.getTrialPoints();
                     return trialPoints;
 
                 }).get());
