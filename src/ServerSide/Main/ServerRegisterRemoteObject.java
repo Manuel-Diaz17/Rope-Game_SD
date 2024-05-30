@@ -108,7 +108,8 @@ public class ServerRegisterRemoteObject {
         out.println("RMI registry was created!");
 
         try
-        { registry.rebind (nameEntry, regEngineStub);
+        {
+            registry.rebind (nameEntry, regEngineStub);
         }
         catch (RemoteException e)
         { 

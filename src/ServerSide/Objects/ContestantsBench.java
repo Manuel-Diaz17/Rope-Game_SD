@@ -55,7 +55,7 @@ public class ContestantsBench implements InterfaceContestantsBench {
      * @param refSiteInt
      * @param girInt
      */
-    public ContestantsBench(InterfaceRefereeSite refSiteInt, InterfaceGeneralInformationRepository girStub) {
+    public ContestantsBench(InterfaceRefereeSite refSiteStub, InterfaceGeneralInformationRepository girStub) {
         lock = new ReentrantLock();
         
         allPlayersSeated = new Condition[2];
@@ -78,7 +78,7 @@ public class ContestantsBench implements InterfaceContestantsBench {
             selectedContestants[i] = new ArrayList<>();
         }
         
-        refereeSite = refSiteInt;
+        refereeSite = refSiteStub;
         informationRepository = girStub;
         
         shutdownVotes = 0;
