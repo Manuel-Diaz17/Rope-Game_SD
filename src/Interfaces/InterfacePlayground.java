@@ -63,7 +63,7 @@ public interface InterfacePlayground extends Remote{
     /**
      * Checks if everyone pulled the rope
      */
-    void allHavePulled();
+    void allHavePulled() throws RemoteException;
 
     /**
      * Contestant pulls the rope

@@ -91,9 +91,14 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
             int waitForNextTrial = bench.waitForNextTrial(team, state.getId());
 
             while (!((BooleanSupplier) () -> {
-                boolean isMatchEnded = false;
-                refereeSite.isMatchEnded();
-                return isMatchEnded;
+                boolean hasMatchEnded = false;
+                try {
+                    refereeSite.isMatchEnded();
+                } catch (RemoteException ex) {
+                    Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(1);
+                }
+                return hasMatchEnded;
             }).getAsBoolean()) {
                 switch (state) {
                     case WAIT_FOR_REFEREE_COMMAND:
@@ -175,9 +180,12 @@ public class Coach extends Thread implements Comparable<InterfaceCoach>, Interfa
                 }).get(),
                 ((Supplier<List<TrialScore>>) () -> {
                     List<TrialScore> trialPoints = null;
-                    trialPoints = refereeSite.getTrialPoints();
+                    try {
+                        trialPoints = refereeSite.getTrialPoints();
+                    } catch(RemoteException ex) {
+                        Logger.getLogger(Coach.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     return trialPoints;
-
                 }).get());
 
         bench.setSelectedContestants(team, pickedContestants);

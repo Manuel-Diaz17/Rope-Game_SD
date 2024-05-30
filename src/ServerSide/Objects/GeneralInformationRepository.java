@@ -2,6 +2,7 @@ package ServerSide.Objects;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -87,7 +88,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void updateReferee(int status) {
+    public void updateReferee(int status) throws RemoteException{
 
         lock.lock();
 
@@ -97,7 +98,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void updateContestant(int id, int team, int status, int strength) {
+    public void updateContestant(int id, int team, int status, int strength) throws RemoteException{
 
         lock.lock();
 
@@ -109,7 +110,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void updateContestantStrength(int team, int id, int strength) {
+    public void updateContestantStrength(int team, int id, int strength) throws RemoteException{
 
         lock.lock();
 
@@ -121,7 +122,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void updateCoach(int team, int status) {
+    public void updateCoach(int team, int status) throws RemoteException{
 
         lock.lock();
 
@@ -131,7 +132,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void setGameNumber(int gameNumber) {
+    public void setGameNumber(int gameNumber) throws RemoteException{
         lock.lock();
 
         this.gameNumber = gameNumber;
@@ -140,7 +141,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void setTrialNumber(int trialNumber) {
+    public void setTrialNumber(int trialNumber) throws RemoteException{
         lock.lock();
 
         this.trialNumber = trialNumber;
@@ -149,7 +150,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void setFlagPosition(int flagPosition) {
+    public void setFlagPosition(int flagPosition) throws RemoteException{
         lock.lock();
 
         this.flagPosition = flagPosition;
@@ -158,7 +159,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void setTeamPlacement(int id, int team) {
+    public void setTeamPlacement(int id, int team) throws RemoteException{
 
         lock.lock();
 
@@ -178,7 +179,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void resetTeamPlacement(int id, int team) {
+    public void resetTeamPlacement(int id, int team) throws RemoteException{
         InterfaceContestant contestant = (InterfaceContestant) Thread.currentThread();
 
         lock.lock();
@@ -199,7 +200,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printGameHeader() {
+    public void printGameHeader() throws RemoteException{
         lock.lock();
 
         printer.printf("Game %1d%n", gameNumber);
@@ -210,7 +211,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printLineUpdate() {
+    public void printLineUpdate() throws RemoteException{
         lock.lock();
 
         if (headerPrinted) {
@@ -224,7 +225,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printGameResult(GameScore score) {
+    public void printGameResult(GameScore score) throws RemoteException{
         lock.lock();
 
         switch (score) {
@@ -249,7 +250,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printMatchWinner(int team, int score1, int score2) {
+    public void printMatchWinner(int team, int score1, int score2) throws RemoteException{
         lock.lock();
 
         printer.printf("Match was won by team %d (%d-%d).%n", team, score1, score2);
@@ -259,7 +260,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printMatchDraw() {
+    public void printMatchDraw() throws RemoteException{
         lock.lock();
 
         printer.printf("Match was a draw.%n");
@@ -269,7 +270,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printLegend() {
+    public void printLegend() throws RemoteException{
         lock.lock();
 
         printer.printf("Legend:%n");
@@ -286,7 +287,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void printHeader() {
+    public void printHeader() throws RemoteException{
         lock.lock();
 
         printer.printf("Game of the Rope - Description of the internal state%n");
@@ -303,8 +304,9 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
 
     /**
      * Prints game column header
+     * 
      */
-    private void printColumnHeader() {
+    private void printColumnHeader() throws RemoteException{
         lock.lock();
 
         printer.printf("Ref Coa 1 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Coa 2 Cont 1 Cont 2 Cont 3 Cont 4 Cont 5 Trial%n");
@@ -317,7 +319,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     /**
      * Prints active entities states
      */
-    private void printActiveEntitiesStates() {
+    private void printActiveEntitiesStates() throws RemoteException{
         lock.lock();
 
         printer.printf("%3s", refereeState);
@@ -337,7 +339,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     /**
      * Prints an empty result
      */
-    private void printEmptyResult() {
+    private void printEmptyResult() throws RemoteException{
         lock.lock();
 
         printer.printf(" - - - . - - - -- --%n");
@@ -352,7 +354,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
      * @param trialNumber number of the trial
      * @param flagPosition position of the flag
      */
-    private void printTrialResult(int trialNumber, int flagPosition) {
+    private void printTrialResult(int trialNumber, int flagPosition) throws RemoteException{
         lock.lock();
         for (int i = 0; i < 3; i++) {
             if (i >= team1Placement.size()) {
@@ -384,7 +386,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
      * @param team number of the team
      * @param trials in how many trials
      */
-    private void printGameWinnerByKnockOut(int game, int team, int trials) {
+    private void printGameWinnerByKnockOut(int game, int team, int trials) throws RemoteException{
         lock.lock();
 
         printer.printf("Game %d was won by team %d by knock out in %d trials.%n", game, team, trials);
@@ -399,7 +401,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
      * @param game number of the game
      * @param team that won the game
      */
-    private void printGameWinnerByPoints(int game, int team) {
+    private void printGameWinnerByPoints(int game, int team) throws RemoteException{
         lock.lock();
 
         printer.printf("Game %d was won by team %d by points.%n", game, team);
@@ -413,7 +415,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
      *
      * @param game number that was a draw
      */
-    private void printGameDraw(int game) {
+    private void printGameDraw(int game) throws RemoteException{
         lock.lock();
 
         printer.printf("Game %d was a draw.%n", game);
@@ -423,7 +425,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public void close() {
+    public void close() throws RemoteException{
         lock.lock();
 
         printer.flush();
@@ -433,7 +435,7 @@ public class GeneralInformationRepository implements InterfaceGeneralInformation
     }
 
     @Override
-    public boolean shutdown() {
+    public boolean shutdown() throws RemoteException{
         boolean result = false;
 
         lock.lock();

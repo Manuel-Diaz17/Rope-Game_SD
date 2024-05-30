@@ -22,8 +22,6 @@ import java.util.logging.Logger;
  */
 public class Playground implements InterfacePlayground {
 
-    private static Playground instance;         // singleton
-
     // locking and waiting conditions
     private final Lock lock;
     private final Condition startTrial;         // condition for waiting the trial start
@@ -256,7 +254,7 @@ public class Playground implements InterfacePlayground {
     }
 
     @Override
-    public void allHavePulled() {
+    public void allHavePulled() throws RemoteException{
         lock.lock();
         try {
             this.finishedPulling.await();

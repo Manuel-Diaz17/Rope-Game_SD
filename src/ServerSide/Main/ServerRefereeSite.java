@@ -73,8 +73,8 @@ public class ServerRefereeSite {
 
         /* create and install the security manager */
 
-        if (System.getSecurityManager () == null)
-            System.setSecurityManager (new SecurityManager ());
+        //if (System.getSecurityManager () == null)
+        //    System.setSecurityManager (new SecurityManager ());
         out.println("Security manager was installed!");
 
         /* get a remote reference to the general repository object */

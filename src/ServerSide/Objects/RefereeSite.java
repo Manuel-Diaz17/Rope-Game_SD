@@ -5,6 +5,8 @@ import Interfaces.InterfaceRefereeSite;
 import Others.InterfaceReferee.RefereeState;
 
 import static java.lang.System.out;
+
+import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
@@ -66,7 +68,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public List<GameScore> getGamePoints() {
+    public List<GameScore> getGamePoints() throws RemoteException{
         List<GameScore> gamePoints;
 
         lock.lock();
@@ -79,7 +81,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public List<TrialScore> getTrialPoints() {
+    public List<TrialScore> getTrialPoints() throws RemoteException{
         List<TrialScore> trialPoints;
 
         lock.lock();
@@ -92,7 +94,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public void resetTrialPoints() {
+    public void resetTrialPoints() throws RemoteException{
         lock.lock();
 
         this.trialStatus = new LinkedList<>();
@@ -101,7 +103,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public int getRemainingTrials() {
+    public int getRemainingTrials() throws RemoteException{
         int remaining;
 
         lock.lock();
@@ -114,7 +116,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public int getRemainingGames() {
+    public int getRemainingGames() throws RemoteException{
         int remaining;
 
         lock.lock();
@@ -127,7 +129,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public void addGamePoint(GameScore score) {
+    public void addGamePoint(GameScore score) throws RemoteException{
         lock.lock();
 
         this.gameStatus.add(score);
@@ -137,7 +139,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public void addTrialPoint(TrialScore score) {
+    public void addTrialPoint(TrialScore score) throws RemoteException{
         lock.lock();
 
         this.trialStatus.add(score);
@@ -146,7 +148,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public int bothTeamsReady() {
+    public int bothTeamsReady() throws RemoteException{
 
         lock.lock();
 
@@ -168,7 +170,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public void informReferee() {
+    public void informReferee() throws RemoteException{
         lock.lock();
 
         informRefereeCounter++;
@@ -181,7 +183,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public boolean isMatchEnded() {
+    public boolean isMatchEnded() throws RemoteException{
         boolean hasEnded;
 
         lock.lock();
@@ -194,7 +196,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public void setIsMatchEnded(boolean hasMatchEnded) {
+    public void setIsMatchEnded(boolean hasMatchEnded) throws RemoteException{
         lock.lock();
 
         out.println("setting has match ended");
@@ -205,7 +207,7 @@ public class RefereeSite implements InterfaceRefereeSite {
     }
 
     @Override
-    public boolean shutdown() {
+    public boolean shutdown() throws RemoteException{
         boolean result = false;
 
         lock.lock();
