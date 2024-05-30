@@ -3,10 +3,10 @@ package ServerSide.Objects;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceRefereeSite;
-import Interfaces.Triple;
-import Interfaces.Tuple;
-import Interfaces.InterfaceCoach.CoachState;
-import Interfaces.InterfaceContestant.ContestantState;
+import Others.Triple;
+import Others.Tuple;
+import Others.InterfaceCoach.CoachState;
+import Others.InterfaceContestant.ContestantState;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

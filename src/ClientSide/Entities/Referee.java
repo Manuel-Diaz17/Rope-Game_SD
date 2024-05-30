@@ -1,6 +1,6 @@
 package ClientSide.Entities;
 
-import static Interfaces.InterfaceReferee.RefereeState.END_OF_THE_MATCH;
+import static Others.InterfaceReferee.RefereeState.END_OF_THE_MATCH;
 
 import java.rmi.RemoteException;
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
-import Interfaces.InterfaceReferee;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceRefereeSite.GameScore;
 import Interfaces.InterfaceRefereeSite.TrialScore;
+import Others.InterfaceReferee;
 
 /**
  * This is an active class implements the Referee and his interactions in the

@@ -1,11 +1,11 @@
 package ServerSide.Objects;
 
 import Interfaces.InterfacePlayground;
-import Interfaces.InterfaceCoach.CoachState;
-import Interfaces.InterfaceContestant.ContestantState;
 import Interfaces.InterfaceGeneralInformationRepository;
-import Interfaces.InterfaceReferee.RefereeState;
-import Interfaces.Triple;
+import Others.Triple;
+import Others.InterfaceCoach.CoachState;
+import Others.InterfaceContestant.ContestantState;
+import Others.InterfaceReferee.RefereeState;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

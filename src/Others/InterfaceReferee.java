@@ -1,4 +1,4 @@
-package Interfaces;
+package Others;
 
 /**
  * Interface that defines the operations available over the objects that

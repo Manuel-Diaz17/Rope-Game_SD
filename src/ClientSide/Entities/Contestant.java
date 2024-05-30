@@ -2,12 +2,12 @@ package ClientSide.Entities;
 
 import java.rmi.RemoteException;
 
-import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
-import Interfaces.Tuple;
+import Others.InterfaceContestant;
+import Others.Tuple;
 
 /**
  * This is active class Contestant which implements the InterfaceContestant

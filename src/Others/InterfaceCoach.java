@@ -1,6 +1,4 @@
-package Interfaces;
-
-import Interfaces.InterfaceCoach.CoachState;
+package Others;
 
 /**
  * Interface that defines the operations available over the objects that

@@ -4,6 +4,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Set;
 
+import Others.Tuple;
+
 /**
  * Interface that defines the operations available over the objects that
  * represent the contestants bench

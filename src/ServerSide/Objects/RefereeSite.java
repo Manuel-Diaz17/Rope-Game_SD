@@ -2,7 +2,7 @@ package ServerSide.Objects;
 
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfaceRefereeSite;
-import Interfaces.InterfaceReferee.RefereeState;
+import Others.InterfaceReferee.RefereeState;
 
 import static java.lang.System.out;
 import java.util.LinkedList;

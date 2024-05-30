@@ -9,13 +9,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Interfaces.InterfaceContestant;
 import Interfaces.InterfaceGeneralInformationRepository;
-import Interfaces.Tuple;
-import Interfaces.InterfaceCoach.CoachState;
-import Interfaces.InterfaceContestant.ContestantState;
-import Interfaces.InterfaceReferee.RefereeState;
 import Interfaces.InterfaceRefereeSite.GameScore;
+import Others.InterfaceContestant;
+import Others.Tuple;
+import Others.InterfaceCoach.CoachState;
+import Others.InterfaceContestant.ContestantState;
+import Others.InterfaceReferee.RefereeState;
 
 /**
  * This is an passive class that logs entities activity

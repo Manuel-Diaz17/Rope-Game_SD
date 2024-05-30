@@ -1,8 +1,8 @@
 package Communication;
 
-import Interfaces.InterfaceCoach.CoachState;
-import Interfaces.InterfaceContestant.ContestantState;
-import Interfaces.InterfaceReferee.RefereeState;
+import Others.InterfaceCoach.CoachState;
+import Others.InterfaceContestant.ContestantState;
+import Others.InterfaceReferee.RefereeState;
 import ServerSide.Objects.RefereeSite;
 
 import java.io.Serializable;

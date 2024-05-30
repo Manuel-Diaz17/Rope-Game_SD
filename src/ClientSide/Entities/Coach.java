@@ -11,13 +11,13 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Interfaces.InterfaceCoach;
 import Interfaces.InterfaceContestantsBench;
 import Interfaces.InterfaceGeneralInformationRepository;
 import Interfaces.InterfacePlayground;
 import Interfaces.InterfaceRefereeSite;
 import Interfaces.InterfaceRefereeSite.TrialScore;
-import Interfaces.Tuple;
+import Others.InterfaceCoach;
+import Others.Tuple;
 
 /**
  * This is active class Coach which implements the InterfaceCoach
