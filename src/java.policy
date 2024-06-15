@@ -1,0 +1,13 @@
+grant
+{ permission java.util.PropertyPermission "user.dir", "read";
+  permission java.net.SocketPermission "*:1024-65535", "listen,resolve,connect,accept";
+  permission java.net.SocketPermission "*:80", "connect";
+  permission java.io.FilePermission "/-", "read,write";
+
+  // Grant permission to the RMI server to create and bind objects
+  permission java.rmi.RMISecurityManager;
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.server";
+  permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.transport";
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+};

@@ -1,13 +1,12 @@
 package ServerSide.Main;
 
+import Interfaces.Register;
+import ServerSide.Objects.RegisterRemoteObject;
+import static java.lang.System.out;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-
-import Interfaces.Register;
-import ServerSide.Objects.RegisterRemoteObject;
-import static java.lang.System.out;
 
 /**
  *   Instantiation and registering of an object that enables the registration of other objects located
@@ -89,6 +88,8 @@ public class ServerRegisterRemoteObject {
             System.exit (1);
         }
         out.println("Stub was generated!");
+        System.out.println("serverremote objerct \n regEngine: " + regEngine);
+        System.out.println("portNumb: " + portNumb);
 
         /* register it with the local registry service */
 
